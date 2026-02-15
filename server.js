@@ -53,11 +53,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- CONNEXION BASE DE DONNÉES ---
 const db = mysql.createConnection({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || 'zenvour',
-    database: process.env.MYSQL_DATABASE || 'association_db',
-    port: process.env.MYSQLPORT || 3306
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    // La ligne ci-dessous est la correction importante :
+    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE, 
+    port: process.env.MYSQLPORT
 });
 
 db.connect((err) => {
