@@ -8,7 +8,7 @@ const fs = require('fs');
 const session = require('express-session'); // Module de session
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 1. CONFIGURATION SPÉCIALE NGROK
 // Dit à Express de faire confiance au HTTPS fourni par Ngrok
@@ -53,10 +53,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- CONNEXION BASE DE DONNÉES ---
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'zenvour', // Votre mot de passe
-    database: 'association_db'
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || 'zenvour',
+    database: process.env.MYSQL_DATABASE || 'association_db',
+    port: process.env.MYSQLPORT || 3306
 });
 
 db.connect((err) => {
