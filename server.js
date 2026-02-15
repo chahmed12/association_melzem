@@ -279,6 +279,75 @@ app.get('/api/femmes', (req, res) => {
     });
 });
 
+// -----------------------
+// --- ROUTE SPÉCIALE POUR FORCER LA CRÉATION DE TOUTES LES TABLES ---
+app.get('/init', (req, res) => {
+    
+    // 1. Création de la table ADMINS
+    const sqlAdmins = `CREATE TABLE IF NOT EXISTS admins (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+    )`;
+
+    db.query(sqlAdmins, (err) => {
+        if (err) return res.send("Erreur Table Admins: " + err.message);
+
+        // 1b. Création du compte admin par défaut (si inexistant)
+        db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
+            if (!err && results.length === 0) {
+                db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
+            }
+        });
+
+        // 2. Création de la table MEMBRES
+        const sqlMembres = `CREATE TABLE IF NOT EXISTS membres (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nom VARCHAR(255) NOT NULL,
+            telephone VARCHAR(20) NOT NULL,
+            situation VARCHAR(50),
+            montant INT DEFAULT 0,
+            date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        db.query(sqlMembres, (err) => {
+            if (err) return res.send("Erreur Table Membres: " + err.message);
+
+            // 3. Création de la table FEMMES (Celle qui manquait)
+            const sqlFemmes = `CREATE TABLE IF NOT EXISTS femmes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(255) NOT NULL,
+                telephone VARCHAR(20) NOT NULL,
+                date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`;
+
+            db.query(sqlFemmes, (err) => {
+                if (err) return res.send("Erreur Table Femmes: " + err.message);
+
+                // 4. Création de la table NOUVEAUTÉS (Celle qui manquait aussi)
+                const sqlNews = `CREATE TABLE IF NOT EXISTS nouveautes (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    titre VARCHAR(255),
+                    url VARCHAR(500),
+                    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )`;
+
+                db.query(sqlNews, (err) => {
+                    if (err) return res.send("Erreur Table Nouveautés: " + err.message);
+                    
+                    // TOUT EST FINI !
+                    res.send(`
+                        <h1 style="color:green">SUCCÈS TOTAL ! 🎉</h1>
+                        <p>Les 4 tables (Admins, Membres, Femmes, Nouveautés) ont été créées.</p>
+                        <p>Vous pouvez maintenant aller sur <a href='/login.html'>/login.html</a></p>
+                    `);
+                });
+            });
+        });
+    });
+});
+// ---------------------------------------------------------
+
 // --- DÉMARRAGE ---
 app.listen(PORT, () => {
     console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
