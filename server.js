@@ -1,103 +1,198 @@
-const express = require('express');
-const mysql = require('mysql2');
+require('dotenv').config();
+
+const express    = require('express');
+const mysql      = require('mysql2');
 const bodyParser = require('body-parser');
-const path = require('path');
-const cors = require('cors');
-const multer = require('multer');
-const fs = require('fs');
-const session = require('express-session');
+
+const path       = require('path');
+const cors       = require('cors');
+const multer     = require('multer');
+const fs         = require('fs');
+const session    = require('express-session');
+
 const MySQLStore = require('express-mysql-session')(session);
 
-const app = express();
-const PORT = 3000;
+const app  = express();
+const PORT = process.env.PORT || 3000;
 
-// 1. CONFIGURATION SPÉCIALE NGROK
-app.set('trust proxy', 1);
 
-// --- Configuration du stockage des images (Multer) ---
+// ═══════════════════════════════════════════════════════════════
+//  1. CONFIGURATION GÉNÉRALE
+// ═══════════════════════════════════════════════════════════════
+
+
+app.set('trust proxy', 1); // Obligatoire pour Ngrok / proxy HTTPS
+
+// ─── Multer (upload images) ────────────────────────────────────
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: (req, file, cb) => {
         const uploadDir = path.join(__dirname, 'public/uploads');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
+        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
         cb(null, uploadDir);
     },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// --- MIDDLEWARES GLOBAUX ---
+// ─── Middlewares globaux ───────────────────────────────────────
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// --- CONNEXION BASE DE DONNÉES ---
-const dbOptions = {
-    host: 'localhost',
-    user: 'root',
-    password: 'zenvour',
-    database: 'association_db'
-};
-const db = mysql.createConnection(dbOptions);
+
+// ═══════════════════════════════════════════════════════════════
+//  2. CONNEXION BASE DE DONNÉES
+// ═══════════════════════════════════════════════════════════════
+
+const db = mysql.createConnection({
+    host:     process.env.MYSQLHOST,
+    user:     process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
+    port:     process.env.MYSQLPORT
+});
+
 
 db.connect((err) => {
     if (err) {
-        console.error('❌ Erreur de connexion MySQL :', err);
+        console.error('❌ Erreur de connexion à la base de données:', err.message);
         return;
     }
-    console.log('✅ Connecté à MySQL avec succès !');
+    console.log('✅ Connecté à la base de données MySQL');
+    createTables();
 });
 
-// 2. CONFIGURATION DE LA SESSION (MySQL Store)
+
+// ─── Création automatique des tables ──────────────────────────
+function createTables() {
+
+    // 1. Admins
+    db.query(`CREATE TABLE IF NOT EXISTS admins (
+        id       INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+    )`, (err) => {
+        if (err) return console.error('Erreur table admins:', err);
+        console.log("Table 'admins' vérifiée.");
+        db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
+            if (!err && results.length === 0) {
+                db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
+                console.log("Compte admin par défaut créé !");
+            }
+        });
+    });
+
+    // 2. Membres
+    db.query(`CREATE TABLE IF NOT EXISTS membres (
+        id               INT AUTO_INCREMENT PRIMARY KEY,
+        nom              VARCHAR(255) NOT NULL,
+        telephone        VARCHAR(20)  NOT NULL,
+        situation        VARCHAR(50),
+        montant          INT DEFAULT 0,
+        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Erreur table membres:', err);
+        else console.log("Table 'membres' vérifiée.");
+    });
+
+    // 3. Femmes
+    db.query(`CREATE TABLE IF NOT EXISTS femmes (
+        id               INT AUTO_INCREMENT PRIMARY KEY,
+        nom              VARCHAR(255) NOT NULL,
+        telephone        VARCHAR(20)  NOT NULL,
+        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Erreur table femmes:', err);
+        else console.log("Table 'femmes' vérifiée.");
+    });
+
+    // 4. Nouveautés
+    db.query(`CREATE TABLE IF NOT EXISTS nouveautes (
+        id    INT AUTO_INCREMENT PRIMARY KEY,
+        titre VARCHAR(255),
+        url   VARCHAR(500),
+        date  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Erreur table nouveautes:', err);
+        else console.log("Table 'nouveautes' vérifiée.");
+    });
+
+    // 5. Payments (cotisations)
+    db.query(`CREATE TABLE IF NOT EXISTS payments (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        membre_id  INT NOT NULL,
+        mois       INT NOT NULL,
+        UNIQUE KEY unique_payment (membre_id, mois),
+        FOREIGN KEY (membre_id) REFERENCES membres(id) ON DELETE CASCADE
+    )`, (err) => {
+        if (err) console.error('Erreur table payments:', err);
+        else console.log("Table 'payments' vérifiée.");
+    });
+
+    // 6. Dépenses
+    db.query(`CREATE TABLE IF NOT EXISTS depenses (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        label      VARCHAR(255) NOT NULL,
+        montant    INT          NOT NULL,
+        categorie  VARCHAR(50)  DEFAULT 'autre',
+        date       DATE,
+        note       TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (err) console.error('Erreur table depenses:', err);
+        else console.log("Table 'depenses' vérifiée.");
+    });
+
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  3. SESSION
+// ═══════════════════════════════════════════════════════════════
+
 const sessionStore = new MySQLStore({}, db);
 
 app.use(session({
-    key: 'session_cookie_name',
-    secret: 'votre_secret_tres_complique_et_long_2026',
-    store: sessionStore,
+    key:    'session_cookie_name',
+    secret: process.env.SESSION_SECRET || 'votre_secret_tres_complique_et_long_2026',
+    store:  sessionStore,
     resave: false,
-    saveUninitialized: false, // Optimisation: ne pas créer de session vide
+    saveUninitialized: false,
     cookie: {
-        secure: true,       // OBLIGATOIRE car Ngrok est en HTTPS
-        sameSite: 'none',   // OBLIGATOIRE pour que Chrome accepte le cookie via Ngrok
-        maxAge: 24 * 60 * 60 * 1000 // 24 heures
+        secure:   true,   // Obligatoire HTTPS (Ngrok)
+        sameSite: 'none', // Obligatoire cross-origin (Ngrok)
+        maxAge:   24 * 60 * 60 * 1000 // 24h
     }
 }));
 
-// Servir les fichiers publics
+// ─── Fichiers publics ──────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- 3. FONCTION DE SÉCURITÉ (Auth Guard) ---
+// ─── Middleware d'authentification ────────────────────────────
 function isAuthenticated(req, res, next) {
-    if (req.session.loggedin) {
-        return next();
-    } else {
-        res.redirect('/login.html');
-    }
+    if (req.session.loggedin) return next();
+    res.redirect('/login.html');
 }
 
-// ================= ROUTES =================
+// ═══════════════════════════════════════════════════════════════
+//  4. ROUTES PUBLIQUES
+// ═══════════════════════════════════════════════════════════════
 
-// Route Accueil
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// --- AUTHENTIFICATION ---
+// ═══════════════════════════════════════════════════════════════
+//  5. AUTHENTIFICATION
+// ═══════════════════════════════════════════════════════════════
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    const sql = "SELECT * FROM admins WHERE username = ? AND password = ?";
 
-    db.query(sql, [username, password], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        }
+    db.query("SELECT * FROM admins WHERE username = ? AND password = ?", [username, password], (err, results) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
 
         if (results.length > 0) {
             req.session.loggedin = true;
@@ -114,159 +209,204 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-// --- ZONE ADMINISTRATIVE (PROTÉGÉE) ---
+// ═══════════════════════════════════════════════════════════════
+//  6. PAGES ADMIN (PROTÉGÉES)
+// ═══════════════════════════════════════════════════════════════
 
-// Dashboard Principal
-app.get('/admin.html', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'prive', 'admin.html'));
-});
 
-// Gestion Nouveautés (Ancien admin.html)
-app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html'));
-});
+app.get('/admin.html',              isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'admin.html')));
+app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
+app.get('/liste-membres.html',      isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'liste-membres.html')));
+app.get('/gestion-cotisations.html',isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-cotisations.html')));
+app.get('/gestion-depenses.html',   isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-depenses.html')));
 
-// Liste des membres protégée
-app.get('/liste-membres.html', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'prive', 'liste-membres.html'));
-});
+// ═══════════════════════════════════════════════════════════════
+//  7. API COTISATIONS
+// ═══════════════════════════════════════════════════════════════
 
-// Gestion Cotisations (Page)
-app.get('/gestion-cotisations.html', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'prive', 'gestion-cotisations.html'));
-});
-
-// --- API COTISATIONS ---
-
-// Récupérer les membres et leurs paiements
+// GET — liste des membres + leurs paiements
 app.get('/api/cotisations', (req, res) => {
-    const sqlMembres = "SELECT * FROM membres ORDER BY nom ASC";
-    const sqlPaiements = "SELECT * FROM payments";
-
-    db.query(sqlMembres, (err, membres) => {
+    db.query("SELECT * FROM membres ORDER BY nom ASC", (err, membres) => {
         if (err) return res.status(500).json({ error: err });
-
-        db.query(sqlPaiements, (err, paiements) => {
+        db.query("SELECT * FROM payments", (err, paiements) => {
             if (err) return res.status(500).json({ error: err });
-
-            // Mapper les paiements aux membres
-            const data = membres.map(m => {
-                const mesPaiements = paiements
-                    .filter(p => p.membre_id === m.id)
-                    .map(p => p.mois);
-                return { ...m, paiements: mesPaiements };
-            });
-
+            const data = membres.map(m => ({
+                ...m,
+                paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
+            }));
             res.json(data);
         });
     });
 });
 
-// Basculer un paiement (Toggle)
+// POST — basculer un paiement (toggle)
 app.post('/api/cotisations/toggle', isAuthenticated, (req, res) => {
     const { membre_id, mois } = req.body;
-
-    // Vérifier si le paiement existe
-    const checkSql = "SELECT * FROM payments WHERE membre_id = ? AND mois = ?";
-    db.query(checkSql, [membre_id, mois], (err, results) => {
+    db.query("SELECT * FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], (err, results) => {
         if (err) return res.status(500).json({ error: err });
-
         if (results.length > 0) {
-            // DELETE
-            const deleteSql = "DELETE FROM payments WHERE membre_id = ? AND mois = ?";
-            db.query(deleteSql, [membre_id, mois], () => {
+            db.query("DELETE FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], () => {
                 res.json({ success: true, status: 'removed' });
             });
         } else {
-            // INSERT
-            const insertSql = "INSERT INTO payments (membre_id, mois) VALUES (?, ?)";
-            db.query(insertSql, [membre_id, mois], () => {
+            db.query("INSERT INTO payments (membre_id, mois) VALUES (?, ?)", [membre_id, mois], () => {
                 res.json({ success: true, status: 'added' });
             });
         }
     });
 });
 
-// --- API NOUVEAUTÉS ---
+// ═══════════════════════════════════════════════════════════════
+//  8. API DÉPENSES
+// ═══════════════════════════════════════════════════════════════
+
+// GET — toutes les dépenses (accessible publiquement pour l'affichage du solde)
+app.get('/api/depenses', (req, res) => {
+    db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, results) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json(results);
+    });
+});
+
+// POST — ajouter une dépense (admin uniquement)
+app.post('/api/depenses', isAuthenticated, (req, res) => {
+    const { label, montant, categorie, date, note } = req.body;
+    if (!label || !montant) return res.status(400).json({ success: false, message: 'label et montant requis' });
+    db.query(
+        "INSERT INTO depenses (label, montant, categorie, date, note) VALUES (?, ?, ?, ?, ?)",
+        [label, montant, categorie || 'autre', date || null, note || ''],
+        (err, result) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json({ success: true, id: result.insertId });
+        }
+    );
+});
+
+// DELETE — supprimer une dépense (admin uniquement)
+app.delete('/api/depenses/:id', isAuthenticated, (req, res) => {
+    db.query("DELETE FROM depenses WHERE id = ?", [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json({ success: true });
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  9. API NOUVEAUTÉS
+// ═══════════════════════════════════════════════════════════════
 
 app.post('/api/nouveautes', isAuthenticated, upload.single('image'), (req, res) => {
     const { titre } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl  = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
+    db.query("INSERT INTO nouveautes (titre, url, date) VALUES (?, ?, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
 
-    if (!imageUrl) {
-        return res.status(400).json({ success: false, message: 'Image requise.' });
-    }
-
-    const sql = "INSERT INTO nouveautes (titre, url, date) VALUES (?, ?, NOW())";
-    db.query(sql, [titre || 'Sans titre', imageUrl], (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur.' });
         res.json({ success: true, message: 'Nouveauté ajoutée avec succès!' });
     });
 });
 
 app.get('/api/nouveautes', (req, res) => {
-    const sql = "SELECT * FROM nouveautes ORDER BY date DESC";
-    db.query(sql, (err, results) => {
-        if (err) res.status(500).json({ success: false });
-        else res.json({ success: true, images: results });
+    db.query("SELECT * FROM nouveautes ORDER BY date DESC", (err, results) => {
+        if (err) return res.status(500).json({ success: false });
+        res.json({ success: true, images: results });
     });
 });
 
-// --- API INSCRIPTIONS ---
 
+// ═══════════════════════════════════════════════════════════════
+//  10. API INSCRIPTIONS
+// ═══════════════════════════════════════════════════════════════
+
+// Inscrire un homme
 app.post('/api/inscrire', (req, res) => {
     const { nom, telephone, situation } = req.body;
     if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
-
-    const checkSql = "SELECT * FROM membres WHERE telephone = ?";
-    db.query(checkSql, [telephone], (err, results) => {
+    db.query("SELECT * FROM membres WHERE telephone = ?", [telephone], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
-
-        let montant = (situation === 'نعم') ? 2000 : 1000;
-        const sql = "INSERT INTO membres (nom, telephone, situation, montant) VALUES (?, ?, ?, ?)";
-        db.query(sql, [nom, telephone, situation, montant], (err, result) => {
-            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-            else res.json({ success: true, message: 'Inscription réussie!' });
-        });
+        const montant = (situation === 'نعم') ? 2000 : 1000;
+        db.query("INSERT INTO membres (nom, telephone, situation, montant) VALUES (?, ?, ?, ?)",
+            [nom, telephone, situation, montant], (err) => {
+                if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                res.json({ success: true, message: 'Inscription réussie!' });
+            });
     });
 });
 
+// Inscrire une femme
 app.post('/api/inscrire-femme', (req, res) => {
     const { nom, telephone } = req.body;
     if (!nom || !telephone) return res.status(400).json({ success: false });
-
-    const checkSql = "SELECT * FROM femmes WHERE telephone = ?";
-    db.query(checkSql, [telephone], (err, results) => {
+    db.query("SELECT * FROM femmes WHERE telephone = ?", [telephone], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
-
-        const sql = "INSERT INTO femmes (nom, telephone) VALUES (?, ?)";
-        db.query(sql, [nom, telephone], (err, result) => {
+        db.query("INSERT INTO femmes (nom, telephone) VALUES (?, ?)", [nom, telephone], (err) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-            else res.json({ success: true, message: 'Inscription réussie!' });
+            res.json({ success: true, message: 'Inscription réussie!' });
+
         });
     });
 });
 
+
+// Liste des membres
+
 app.get('/api/membres', (req, res) => {
-    const sql = "SELECT * FROM membres ORDER BY date_inscription DESC";
-    db.query(sql, (err, results) => {
-        if (err) res.status(500).json({ success: false });
-        else res.json({ success: true, membres: results });
+    db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, results) => {
+        if (err) return res.status(500).json({ success: false });
+        res.json({ success: true, membres: results });
     });
 });
 
+// Liste des femmes
 app.get('/api/femmes', (req, res) => {
-    const sql = "SELECT * FROM femmes ORDER BY date_inscription DESC";
-    db.query(sql, (err, results) => {
-        if (err) res.status(500).json({ success: false });
-        else res.json({ success: true, femmes: results });
+    db.query("SELECT * FROM femmes ORDER BY date_inscription DESC", (err, results) => {
+        if (err) return res.status(500).json({ success: false });
+        res.json({ success: true, femmes: results });
     });
 });
 
-// --- DÉMARRAGE ---
+// ═══════════════════════════════════════════════════════════════
+//  11. ROUTE /init — FORCER LA CRÉATION DES TABLES
+// ═══════════════════════════════════════════════════════════════
+
+app.get('/init', (req, res) => {
+    const tables = [
+        `CREATE TABLE IF NOT EXISTS admins (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL)`,
+        `CREATE TABLE IF NOT EXISTS membres (id INT AUTO_INCREMENT PRIMARY KEY, nom VARCHAR(255) NOT NULL, telephone VARCHAR(20) NOT NULL, situation VARCHAR(50), montant INT DEFAULT 0, date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
+        `CREATE TABLE IF NOT EXISTS femmes (id INT AUTO_INCREMENT PRIMARY KEY, nom VARCHAR(255) NOT NULL, telephone VARCHAR(20) NOT NULL, date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
+        `CREATE TABLE IF NOT EXISTS nouveautes (id INT AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(255), url VARCHAR(500), date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
+        `CREATE TABLE IF NOT EXISTS payments (id INT AUTO_INCREMENT PRIMARY KEY, membre_id INT NOT NULL, mois INT NOT NULL, UNIQUE KEY unique_payment (membre_id, mois), FOREIGN KEY (membre_id) REFERENCES membres(id) ON DELETE CASCADE)`,
+        `CREATE TABLE IF NOT EXISTS depenses (id INT AUTO_INCREMENT PRIMARY KEY, label VARCHAR(255) NOT NULL, montant INT NOT NULL, categorie VARCHAR(50) DEFAULT 'autre', date DATE, note TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`
+    ];
+
+    let i = 0;
+    function next(err) {
+        if (err) return res.send(`❌ Erreur : ${err.message}`);
+        if (i >= tables.length) {
+            // Créer admin par défaut
+            db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
+                if (!err && results.length === 0) {
+                    db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
+                }
+            });
+            return res.send(`
+                <h1 style="color:green;font-family:sans-serif">✅ SUCCÈS ! Les 6 tables ont été créées.</h1>
+                <p style="font-family:sans-serif">Vous pouvez maintenant aller sur <a href="/login.html">/login.html</a></p>
+            `);
+        }
+        db.query(tables[i++], next);
+    }
+    next();
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  12. DÉMARRAGE
+// ═══════════════════════════════════════════════════════════════
+
 app.listen(PORT, () => {
     console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+
     console.log(`🔒 Mode Sécurisé (MySQL Sessions) activé`);
+
 });
