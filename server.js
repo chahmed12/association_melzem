@@ -1,412 +1,185 @@
 require('dotenv').config();
+const express = require('express');
+const mysql = require('mysql2/promise');
+const path = require('path');
 
-const express    = require('express');
-const mysql      = require('mysql2');
-const bodyParser = require('body-parser');
+const app = express();
+const PORT = process.env.PORT || 3006;
 
-const path       = require('path');
-const cors       = require('cors');
-const multer     = require('multer');
-const fs         = require('fs');
-const session    = require('express-session');
-
-const MySQLStore = require('express-mysql-session')(session);
-
-const app  = express();
-const PORT = process.env.PORT || 3000;
-
-
-// ═══════════════════════════════════════════════════════════════
-//  1. CONFIGURATION GÉNÉRALE
-// ═══════════════════════════════════════════════════════════════
-
-
-app.set('trust proxy', 1); // Obligatoire pour Ngrok / proxy HTTPS
-
-// ─── Multer (upload images) ────────────────────────────────────
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, 'public/uploads');
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage });
-
-// ─── Middlewares globaux ───────────────────────────────────────
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-
-// ═══════════════════════════════════════════════════════════════
-//  2. CONNEXION BASE DE DONNÉES
-// ═══════════════════════════════════════════════════════════════
-
-const db = mysql.createConnection({
-    host:     process.env.MYSQLHOST,
-    user:     process.env.MYSQLUSER,
-    password: process.env.MYSQLPASSWORD,
-    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
-    port:     process.env.MYSQLPORT
+// ─── MySQL Connection Pool ─────────────────────────────────────────────
+const pool = mysql.createPool({
+    host:     process.env.DB_HOST,
+    port:     process.env.DB_PORT || 3306,
+    user:     process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-
-db.connect((err) => {
-    if (err) {
-        console.error('❌ Erreur de connexion à la base de données:', err.message);
-        return;
-    }
-    console.log('✅ Connecté à la base de données MySQL');
-    createTables();
-});
-
-
-// ─── Création automatique des tables ──────────────────────────
-function createTables() {
-
-    // 1. Admins
-    db.query(`CREATE TABLE IF NOT EXISTS admins (
-        id       INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(255) NOT NULL,
-        password VARCHAR(255) NOT NULL
-    )`, (err) => {
-        if (err) return console.error('Erreur table admins:', err);
-        console.log("Table 'admins' vérifiée.");
-        db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
-            if (!err && results.length === 0) {
-                db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
-                console.log("Compte admin par défaut créé !");
-            }
-        });
-    });
-
-    // 2. Membres
-    db.query(`CREATE TABLE IF NOT EXISTS membres (
-        id               INT AUTO_INCREMENT PRIMARY KEY,
-        nom              VARCHAR(255) NOT NULL,
-        telephone        VARCHAR(20)  NOT NULL,
-        situation        VARCHAR(50),
-        montant          INT DEFAULT 0,
-        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`, (err) => {
-        if (err) console.error('Erreur table membres:', err);
-        else console.log("Table 'membres' vérifiée.");
-    });
-
-    // 3. Femmes
-    db.query(`CREATE TABLE IF NOT EXISTS femmes (
-        id               INT AUTO_INCREMENT PRIMARY KEY,
-        nom              VARCHAR(255) NOT NULL,
-        telephone        VARCHAR(20)  NOT NULL,
-        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`, (err) => {
-        if (err) console.error('Erreur table femmes:', err);
-        else console.log("Table 'femmes' vérifiée.");
-    });
-
-    // 4. Nouveautés
-    db.query(`CREATE TABLE IF NOT EXISTS nouveautes (
-        id    INT AUTO_INCREMENT PRIMARY KEY,
-        titre VARCHAR(255),
-        url   VARCHAR(500),
-        date  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`, (err) => {
-        if (err) console.error('Erreur table nouveautes:', err);
-        else console.log("Table 'nouveautes' vérifiée.");
-    });
-
-    // 5. Payments (cotisations)
-    db.query(`CREATE TABLE IF NOT EXISTS payments (
-        id         INT AUTO_INCREMENT PRIMARY KEY,
-        membre_id  INT NOT NULL,
-        mois       INT NOT NULL,
-        UNIQUE KEY unique_payment (membre_id, mois),
-        FOREIGN KEY (membre_id) REFERENCES membres(id) ON DELETE CASCADE
-    )`, (err) => {
-        if (err) console.error('Erreur table payments:', err);
-        else console.log("Table 'payments' vérifiée.");
-    });
-
-    // 6. Dépenses
-    db.query(`CREATE TABLE IF NOT EXISTS depenses (
-        id         INT AUTO_INCREMENT PRIMARY KEY,
-        label      VARCHAR(255) NOT NULL,
-        montant    INT          NOT NULL,
-        categorie  VARCHAR(50)  DEFAULT 'autre',
-        date       DATE,
-        note       TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`, (err) => {
-        if (err) console.error('Erreur table depenses:', err);
-        else console.log("Table 'depenses' vérifiée.");
-    });
-
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  3. SESSION
-// ═══════════════════════════════════════════════════════════════
-
-const sessionStore = new MySQLStore({}, db);
-
-app.use(session({
-    key:    'session_cookie_name',
-    secret: process.env.SESSION_SECRET || 'votre_secret_tres_complique_et_long_2026',
-    store:  sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure:   true,   // Obligatoire HTTPS (Ngrok)
-        sameSite: 'none', // Obligatoire cross-origin (Ngrok)
-        maxAge:   24 * 60 * 60 * 1000 // 24h
-    }
-}));
-
-// ─── Fichiers publics ──────────────────────────────────────────
+// ─── Middleware ────────────────────────────────────────────────────────
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── Middleware d'authentification ────────────────────────────
-function isAuthenticated(req, res, next) {
-    if (req.session.loggedin) return next();
-    res.redirect('/login.html');
+// ─── Init DB Tables ───────────────────────────────────────────────────
+async function initDB() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS membreMelzem (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(200) NOT NULL,
+                telephone VARCHAR(30),
+                age VARCHAR(20),
+                village VARCHAR(100),
+                situation VARCHAR(10) DEFAULT 'لا',
+                date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        `);
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS femmesMelzem (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(200) NOT NULL,
+                telephone VARCHAR(30),
+                age VARCHAR(20),
+                village VARCHAR(100),
+                date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        `);
+        console.log('✅ Tables MySQL initialisées');
+    } catch (err) {
+        console.error('❌ Erreur init DB:', err.message);
+    }
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  4. ROUTES PUBLIQUES
-// ═══════════════════════════════════════════════════════════════
+// ─── API HOMMES ───────────────────────────────────────────────────────
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  5. AUTHENTIFICATION
-// ═══════════════════════════════════════════════════════════════
-
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-
-    db.query("SELECT * FROM admins WHERE username = ? AND password = ?", [username, password], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-
-        if (results.length > 0) {
-            req.session.loggedin = true;
-            req.session.username = username;
-            res.json({ success: true, redirect: '/admin.html' });
-        } else {
-            res.json({ success: false, message: 'Identifiants incorrects' });
-        }
-    });
-});
-
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  6. PAGES ADMIN (PROTÉGÉES)
-// ═══════════════════════════════════════════════════════════════
-
-
-app.get('/admin.html',              isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'admin.html')));
-app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
-app.get('/liste-membres.html',      isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'liste-membres.html')));
-app.get('/gestion-cotisations.html',isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-cotisations.html')));
-app.get('/gestion-depenses.html',   isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-depenses.html')));
-
-// ═══════════════════════════════════════════════════════════════
-//  7. API COTISATIONS
-// ═══════════════════════════════════════════════════════════════
-
-// GET — liste des membres + leurs paiements
-app.get('/api/cotisations', (req, res) => {
-    db.query("SELECT * FROM membres ORDER BY nom ASC", (err, membres) => {
-        if (err) return res.status(500).json({ error: err });
-        db.query("SELECT * FROM payments", (err, paiements) => {
-            if (err) return res.status(500).json({ error: err });
-            const data = membres.map(m => ({
-                ...m,
-                paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
-            }));
-            res.json(data);
-        });
-    });
-});
-
-// POST — basculer un paiement (toggle)
-app.post('/api/cotisations/toggle', isAuthenticated, (req, res) => {
-    const { membre_id, mois } = req.body;
-    db.query("SELECT * FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], (err, results) => {
-        if (err) return res.status(500).json({ error: err });
-        if (results.length > 0) {
-            db.query("DELETE FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], () => {
-                res.json({ success: true, status: 'removed' });
-            });
-        } else {
-            db.query("INSERT INTO payments (membre_id, mois) VALUES (?, ?)", [membre_id, mois], () => {
-                res.json({ success: true, status: 'added' });
-            });
-        }
-    });
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  8. API DÉPENSES
-// ═══════════════════════════════════════════════════════════════
-
-// GET — toutes les dépenses (accessible publiquement pour l'affichage du solde)
-app.get('/api/depenses', (req, res) => {
-    db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, results) => {
-        if (err) return res.status(500).json({ error: err });
-        res.json(results);
-    });
-});
-
-// POST — ajouter une dépense (admin uniquement)
-app.post('/api/depenses', isAuthenticated, (req, res) => {
-    const { label, montant, categorie, date, note } = req.body;
-    if (!label || !montant) return res.status(400).json({ success: false, message: 'label et montant requis' });
-    db.query(
-        "INSERT INTO depenses (label, montant, categorie, date, note) VALUES (?, ?, ?, ?, ?)",
-        [label, montant, categorie || 'autre', date || null, note || ''],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err });
-            res.json({ success: true, id: result.insertId });
-        }
-    );
-});
-
-// DELETE — supprimer une dépense (admin uniquement)
-app.delete('/api/depenses/:id', isAuthenticated, (req, res) => {
-    db.query("DELETE FROM depenses WHERE id = ?", [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err });
-        res.json({ success: true });
-    });
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  9. API NOUVEAUTÉS
-// ═══════════════════════════════════════════════════════════════
-
-app.post('/api/nouveautes', isAuthenticated, upload.single('image'), (req, res) => {
-    const { titre } = req.body;
-    const imageUrl  = req.file ? `/uploads/${req.file.filename}` : null;
-    if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
-    db.query("INSERT INTO nouveautes (titre, url, date) VALUES (?, ?, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
-
-        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur.' });
-        res.json({ success: true, message: 'Nouveauté ajoutée avec succès!' });
-    });
-});
-
-app.get('/api/nouveautes', (req, res) => {
-    db.query("SELECT * FROM nouveautes ORDER BY date DESC", (err, results) => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true, images: results });
-    });
-});
-
-
-// ═══════════════════════════════════════════════════════════════
-//  10. API INSCRIPTIONS
-// ═══════════════════════════════════════════════════════════════
-
-// Inscrire un homme
-app.post('/api/inscrire', (req, res) => {
-    const { nom, telephone, situation } = req.body;
-    if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
-    db.query("SELECT * FROM membres WHERE telephone = ?", [telephone], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
-        const montant = (situation === 'نعم') ? 2000 : 1000;
-        db.query("INSERT INTO membres (nom, telephone, situation, montant) VALUES (?, ?, ?, ?)",
-            [nom, telephone, situation, montant], (err) => {
-                if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-                res.json({ success: true, message: 'Inscription réussie!' });
-            });
-    });
-});
-
-// Inscrire une femme
-app.post('/api/inscrire-femme', (req, res) => {
-    const { nom, telephone } = req.body;
-    if (!nom || !telephone) return res.status(400).json({ success: false });
-    db.query("SELECT * FROM femmes WHERE telephone = ?", [telephone], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
-        db.query("INSERT INTO femmes (nom, telephone) VALUES (?, ?)", [nom, telephone], (err) => {
-            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-            res.json({ success: true, message: 'Inscription réussie!' });
-
-        });
-    });
-});
-
-
-// Liste des membres
-
-app.get('/api/membres', (req, res) => {
-    db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, results) => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true, membres: results });
-    });
-});
-
-// Liste des femmes
-app.get('/api/femmes', (req, res) => {
-    db.query("SELECT * FROM femmes ORDER BY date_inscription DESC", (err, results) => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true, femmes: results });
-    });
-});
-
-// ═══════════════════════════════════════════════════════════════
-//  11. ROUTE /init — FORCER LA CRÉATION DES TABLES
-// ═══════════════════════════════════════════════════════════════
-
-app.get('/init', (req, res) => {
-    const tables = [
-        `CREATE TABLE IF NOT EXISTS admins (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL)`,
-        `CREATE TABLE IF NOT EXISTS membres (id INT AUTO_INCREMENT PRIMARY KEY, nom VARCHAR(255) NOT NULL, telephone VARCHAR(20) NOT NULL, situation VARCHAR(50), montant INT DEFAULT 0, date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
-        `CREATE TABLE IF NOT EXISTS femmes (id INT AUTO_INCREMENT PRIMARY KEY, nom VARCHAR(255) NOT NULL, telephone VARCHAR(20) NOT NULL, date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
-        `CREATE TABLE IF NOT EXISTS nouveautes (id INT AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(255), url VARCHAR(500), date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
-        `CREATE TABLE IF NOT EXISTS payments (id INT AUTO_INCREMENT PRIMARY KEY, membre_id INT NOT NULL, mois INT NOT NULL, UNIQUE KEY unique_payment (membre_id, mois), FOREIGN KEY (membre_id) REFERENCES membres(id) ON DELETE CASCADE)`,
-        `CREATE TABLE IF NOT EXISTS depenses (id INT AUTO_INCREMENT PRIMARY KEY, label VARCHAR(255) NOT NULL, montant INT NOT NULL, categorie VARCHAR(50) DEFAULT 'autre', date DATE, note TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`
-    ];
-
-    let i = 0;
-    function next(err) {
-        if (err) return res.send(`❌ Erreur : ${err.message}`);
-        if (i >= tables.length) {
-            // Créer admin par défaut
-            db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
-                if (!err && results.length === 0) {
-                    db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
-                }
-            });
-            return res.send(`
-                <h1 style="color:green;font-family:sans-serif">✅ SUCCÈS ! Les 6 tables ont été créées.</h1>
-                <p style="font-family:sans-serif">Vous pouvez maintenant aller sur <a href="/login.html">/login.html</a></p>
-            `);
-        }
-        db.query(tables[i++], next);
+app.get('/api/membreMelzem', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM membreMelzem ORDER BY date_inscription DESC');
+        res.json({ success: true, membreMelzem: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
-    next();
 });
 
-// ═══════════════════════════════════════════════════════════════
-//  12. DÉMARRAGE
-// ═══════════════════════════════════════════════════════════════
+app.post('/api/membreMelzem', async (req, res) => {
+    const { nom, telephone, age, village, situation } = req.body;
+    if (!nom || !nom.trim()) return res.status(400).json({ success: false, message: 'الاسم مطلوب' });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+    try {
+        // Doublon téléphone
+        if (telephone && telephone.trim()) {
+            const [ex] = await pool.query('SELECT id FROM membreMelzem WHERE telephone = ?', [telephone.trim()]);
+            if (ex.length > 0) return res.status(409).json({ success: false, message: 'رقم الهاتف مسجل مسبقاً' });
+        }
+        // Doublon nom
+        const [nomEx] = await pool.query('SELECT id FROM membreMelzem WHERE LOWER(nom) = LOWER(?)', [nom.trim()]);
+        if (nomEx.length > 0) return res.status(409).json({ success: false, message: 'هذا الاسم مسجل مسبقاً' });
 
-    console.log(`🔒 Mode Sécurisé (MySQL Sessions) activé`);
+        const [result] = await pool.query(
+            'INSERT INTO membreMelzem (nom, telephone, age, village, situation) VALUES (?, ?, ?, ?, ?)',
+            [nom.trim(), telephone?.trim() || null, age || null, village?.trim() || null, situation || 'لا']
+        );
+        res.status(201).json({ success: true, id: result.insertId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'خطأ في قاعدة البيانات' });
+    }
+});
 
+app.delete('/api/membreMelzem/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM membreMelzem WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// ─── API FEMMES ───────────────────────────────────────────────────────
+
+app.get('/api/femmesMelzem', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM femmesMelzem ORDER BY date_inscription DESC');
+        res.json({ success: true, femmesMelzem: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+app.post('/api/femmesMelzem', async (req, res) => {
+    const { nom, telephone, age, village } = req.body;
+    if (!nom || !nom.trim()) return res.status(400).json({ success: false, message: 'الاسم مطلوب' });
+
+    try {
+        if (telephone && telephone.trim()) {
+            const [ex] = await pool.query('SELECT id FROM femmesMelzem WHERE telephone = ?', [telephone.trim()]);
+            if (ex.length > 0) return res.status(409).json({ success: false, message: 'رقم الهاتف مسجل مسبقاً' });
+        }
+        const [nomEx] = await pool.query('SELECT id FROM femmesMelzem WHERE LOWER(nom) = LOWER(?)', [nom.trim()]);
+        if (nomEx.length > 0) return res.status(409).json({ success: false, message: 'هذا الاسم مسجل مسبقاً' });
+
+        const [result] = await pool.query(
+            'INSERT INTO femmesMelzem (nom, telephone, age, village) VALUES (?, ?, ?, ?)',
+            [nom.trim(), telephone?.trim() || null, age || null, village?.trim() || null]
+        );
+        res.status(201).json({ success: true, id: result.insertId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'خطأ في قاعدة البيانات' });
+    }
+});
+
+app.delete('/api/femmesMelzem/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM femmesMelzem WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+// ─── API vérification doublon temps réel ─────────────────────────────
+app.get('/api/check-doublon', async (req, res) => {
+    const { telephone, nom, type } = req.query;
+    const table = type === 'femmesMelzem' ? 'femmesMelzem' : 'membreMelzem';
+    try {
+        if (telephone) {
+            const [rows] = await pool.query(`SELECT id FROM ${table} WHERE telephone = ?`, [telephone]);
+            return res.json({ exists: rows.length > 0 });
+        }
+        if (nom) {
+            const [rows] = await pool.query(`SELECT id FROM ${table} WHERE LOWER(nom) = LOWER(?)`, [nom]);
+            return res.json({ exists: rows.length > 0 });
+        }
+        res.json({ exists: false });
+    } catch (err) {
+        res.status(500).json({ exists: false });
+    }
+});
+
+// ─── Stats ────────────────────────────────────────────────────────────
+app.get('/api/stats', async (req, res) => {
+    try {
+        const [[{ total_h }]] = await pool.query('SELECT COUNT(*) as total_h FROM membreMelzem');
+        const [[{ total_f }]] = await pool.query('SELECT COUNT(*) as total_f FROM femmesMelzem');
+        const [[{ travaillent }]] = await pool.query("SELECT COUNT(*) as travaillent FROM membreMelzem WHERE situation = 'نعم'");
+        res.json({ success: true, hommes: total_h, femmesMelzem: total_f, travaillent });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+});
+
+// ─── Pages HTML ───────────────────────────────────────────────────────
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// ─── Démarrage ────────────────────────────────────────────────────────
+initDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+        console.log(`🌍 Mode: ${process.env.NODE_ENV || 'development'}`);
+    });
 });

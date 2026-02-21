@@ -1,90 +1,383 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الرجال - مغلق</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>تسجيل الرجال - رابطة شباب ملزم تيشط</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --green: #1a5c38;
+            --green-light: #2e8b57;
+            --green-soft: #e8f5ee;
+            --gold: #c9a84c;
+            --dark: #0d1f13;
+            --white: #f8fdf9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0d1f13 0%, #1a3a22 50%, #0d1f13 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 40%, rgba(46,139,87,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-family: 'Cairo', sans-serif;
+            transition: background 0.2s;
+            z-index: 100;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.18); }
+
+        .card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .header-icon {
+            width: 70px; height: 70px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .card-header h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .card-header p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .card-body { padding: 2rem 1.75rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #2d4a35;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            color: #1a202c;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            direction: rtl;
+            appearance: none;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--green-light);
+            box-shadow: 0 0 0 3px rgba(46,139,87,0.12);
+            background: white;
+        }
+
+        /* Village chips */
+        .village-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+        }
+
+        .village-chip {
+            display: none;
+        }
+
+        .village-chip + label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5568;
+            background: #f8fafc;
+            transition: all 0.2s;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .village-chip:checked + label {
+            border-color: var(--green-light);
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        /* Travaille toggle */
+        .toggle-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.4rem;
+        }
+
+        .toggle-opt { display: none; }
+        .toggle-opt + label {
+            flex: 1;
+            text-align: center;
+            padding: 0.65rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f8fafc;
+            transition: all 0.2s;
+            margin-bottom: 0;
+        }
+        .toggle-opt[value="نعم"]:checked + label { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+        .toggle-opt[value="لا"]:checked + label { border-color: #dc2626; background: #fee2e2; color: #b91c1c; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--green), var(--green-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 4px 20px rgba(46,139,87,0.4);
+        }
+        .btn-submit:hover { opacity: 0.92; transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a3a22;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--green-light);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: #16a34a; }
+        .toast.error { background: #3a1a1a; border-color: #dc2626; }
     </style>
 </head>
+<body>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<a href="/" class="back-btn">← الرئيسية</a>
 
-    <a href="/"
-        class="fixed top-4 left-4 bg-white hover:bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-sm z-50">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
-            </path>
-        </svg>
-        الرئيسية
-    </a>
+<div class="card">
+    <div class="card-header">
+        <div class="header-icon">👨</div>
+        <h1>تسجيل الرجال</h1>
+        <p>رابطة شباب بلدية ملزم تيشط</p>
+    </div>
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="card-body">
+        <form id="inscriptionForm">
 
-        <!-- En-tête -->
-        <div class="bg-green-700 p-6 text-center">
-            <h1 class="text-white text-2xl font-bold">تسجيل الرجال</h1>
-            <p class="text-green-100 text-sm mt-1">Inscription Hommes</p>
-        </div>
-
-        <!-- Corps principal -->
-        <div class="p-8 text-center">
-
-            <!-- Icône de cadenas -->
-            <div class="flex justify-center mb-6">
-                <div class="bg-green-100 rounded-full p-5">
-                    <svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                        </path>
-                    </svg>
+            <div class="form-group">
+                <label>الاسم واللقب *</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✍️</span>
+                    <input type="text" name="nom" placeholder="أدخل اسمك الكامل" required>
                 </div>
             </div>
 
-            <!-- Message principal -->
-            <h2 class="text-2xl font-black text-gray-800 mb-4 leading-relaxed">
-                انتهى التسجيل
-            </h2>
-
-            <div class="bg-green-50 border border-green-200 rounded-xl p-5 mb-6">
-                <p class="text-gray-700 text-base leading-loose font-semibold">
-                    لقد انتهت مرحلة التسجيل في الجمعية.
-                </p>
-                <p class="text-gray-600 text-sm leading-loose mt-2">
-                    إذا كنت ترغب في التسجيل، يُرجى التواصل مع أحد أعضاء الإدارة في الجمعية.
-                </p>
+            <div class="form-group">
+                <label>رقم الهاتف *</label>
+                <div class="input-wrap">
+                    <span class="input-icon">📞</span>
+                    <input type="tel" name="telephone" placeholder="مثال: 22000000" required>
+                </div>
             </div>
 
-            <!-- Icône contact -->
-            <div class="flex items-center justify-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
-                    </path>
-                </svg>
-                <p class="text-gray-700 font-bold text-sm">
-                    تواصل مع أحد المشرفين على الجمعية
-                </p>
+            <div class="form-group">
+                <label>العمر *</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🎂</span>
+                    <select name="age" required>
+                        <option value="" disabled selected>اختر الفئة العمرية</option>
+                        <option value="18-25">18 - 25 سنة</option>
+                        <option value="26-35">26 - 35 سنة</option>
+                        <option value="36-45">36 - 45 سنة</option>
+                        <option value="46-55">46 - 55 سنة</option>
+                        <option value="56+">56 سنة فأكثر</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Bouton retour -->
-            <a href="/"
-                class="mt-6 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-md hover:shadow-lg">
-                العودة إلى الرئيسية
-            </a>
-        </div>
+            <div class="form-group">
+                <label>القرية / المنطقة *</label>
+                <div class="village-grid">
+                    <input type="radio" class="village-chip" name="village" id="v1" value="جدة" required>
+                    <label for="v1">جدة</label>
 
-        <div class="bg-gray-50 p-3 text-center text-xs text-gray-500 border-t">
-            Mauritanie &copy; 2026 - جميع الحقوق محفوظة
-        </div>
+                    <input type="radio" class="village-chip" name="village" id="v2" value="الحلة">
+                    <label for="v2">الحلة</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v3" value="وديشرك">
+                    <label for="v3">وديشرك</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v4" value="دواش">
+                    <label for="v4">دواش</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v5" value="لمحيصر">
+                    <label for="v5">لمحيصر</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v6" value="تويزكره">
+                    <label for="v6">تويزكره</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v7" value="دار السلام">
+                    <label for="v7">دار السلام</label>
+
+                    <input type="radio" class="village-chip" name="village" id="v8" value="لفريع">
+                    <label for="v8">لفريع</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>هل تعمل حالياً؟ *</label>
+                <div class="toggle-group">
+                    <input type="radio" class="toggle-opt" name="situation" id="travaille-oui" value="نعم" required>
+                    <label for="travaille-oui">✅ نعم</label>
+                    <input type="radio" class="toggle-opt" name="situation" id="travaille-non" value="لا">
+                    <label for="travaille-non">❌ لا</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">✔ تسجيل الآن</button>
+
+        </form>
     </div>
+</div>
 
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    void t.offsetWidth;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.getElementById('inscriptionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fd = new FormData(this);
+    const village = fd.get('village');
+    if (!village) { showToast('⚠️ يرجى اختيار القرية', 'error'); return; }
+
+    const data = {
+        nom: fd.get('nom'),
+        telephone: fd.get('telephone'),
+        age: fd.get('age'),
+        village: village,
+        situation: fd.get('situation')
+    };
+
+    try {
+        const res = await fetch('/api/membreMelzem', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('✅ تم التسجيل بنجاح!');
+            this.reset();
+        } else {
+            showToast('⚠️ ' + (result.message || 'خطأ في التسجيل'), 'error');
+        }
+    } catch(err) {
+        showToast('❌ خطأ في الاتصال بالخادم', 'error');
+    }
+});
+</script>
 </body>
-
 </html>
