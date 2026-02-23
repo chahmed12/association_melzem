@@ -3,638 +3,692 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة - رابطة شباب ملزم تيشط</title>
+    <title>لوحة الإدارة - رابطة الطليعة الشبابية لبلدية ملزم تيشط</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --green: #1a5c38;
-            --green-light: #2e8b57;
-            --green-soft: #e8f5ee;
-            --gold: #c9a84c;
-            --dark: #0d1f13;
-            --sidebar-w: 240px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Cairo', sans-serif; background: #f0f4f8; min-height: 100vh; }
+        :root { --green:#1a5c38; --green-light:#2e8b57; --green-soft:#e8f5ee; --gold:#c9a84c; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Cairo',sans-serif; background:#f0f4f8; min-height:100vh; }
 
-        /* ─── LOGIN SCREEN ─── */
-        #loginScreen {
-            position: fixed; inset: 0; z-index: 1000;
-            background: linear-gradient(135deg, #0d1f13 0%, #1a3a22 60%, #0d1f13 100%);
-            display: flex; align-items: center; justify-content: center; padding: 1rem;
-        }
-        .login-card {
-            background: white; border-radius: 20px; padding: 2.5rem 2rem;
-            width: 100%; max-width: 380px;
-            box-shadow: 0 30px 70px rgba(0,0,0,.6);
-        }
-        .login-logo { text-align: center; margin-bottom: 2rem; }
-        .login-logo .icon { font-size: 3rem; display: block; margin-bottom: .5rem; }
-        .login-logo h2 { color: var(--green); font-size: 1.3rem; font-weight: 900; }
-        .login-logo p { color: #9ca3af; font-size: .8rem; }
-        .login-field { margin-bottom: 1rem; }
-        .login-field label { display: block; font-size: .82rem; font-weight: 700; color: #374151; margin-bottom: .35rem; }
-        .login-field input {
-            width: 100%; padding: .7rem 1rem; border: 2px solid #e5e7eb;
-            border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: .9rem;
-            transition: border-color .2s;
-        }
-        .login-field input:focus { outline: none; border-color: var(--green-light); }
-        .login-err { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 8px; padding: .6rem 1rem; font-size: .82rem; margin-bottom: 1rem; display: none; }
-        .login-btn {
-            width: 100%; padding: .85rem;
-            background: linear-gradient(135deg, var(--green), var(--green-light));
-            color: white; border: none; border-radius: 12px;
-            font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700;
-            cursor: pointer; box-shadow: 0 4px 20px rgba(46,139,87,.4);
-            transition: opacity .2s;
-        }
-        .login-btn:hover { opacity: .9; }
+        /* LOGIN */
+        #loginScreen { position:fixed; inset:0; z-index:1000; background:linear-gradient(135deg,#0d1f13,#1a3a22 60%,#0d1f13); display:flex; align-items:center; justify-content:center; padding:1rem; }
+        .login-card { background:white; border-radius:20px; padding:2.5rem 2rem; width:100%; max-width:380px; box-shadow:0 30px 70px rgba(0,0,0,.6); }
+        .login-logo { text-align:center; margin-bottom:2rem; }
+        .login-logo .icon { font-size:3rem; display:block; margin-bottom:.5rem; }
+        .login-logo h2 { color:var(--green); font-size:1.3rem; font-weight:900; }
+        .login-logo p { color:#9ca3af; font-size:.8rem; }
+        .login-field { margin-bottom:1rem; }
+        .login-field label { display:block; font-size:.82rem; font-weight:700; color:#374151; margin-bottom:.35rem; }
+        .login-field input { width:100%; padding:.7rem 1rem; border:2px solid #e5e7eb; border-radius:10px; font-family:'Cairo',sans-serif; font-size:.9rem; }
+        .login-field input:focus { outline:none; border-color:var(--green-light); }
+        .login-err { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:8px; padding:.6rem 1rem; font-size:.82rem; margin-bottom:1rem; display:none; }
+        .login-btn { width:100%; padding:.85rem; background:linear-gradient(135deg,var(--green),var(--green-light)); color:white; border:none; border-radius:12px; font-family:'Cairo',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(46,139,87,.4); }
+        .login-lang { display:flex; justify-content:center; margin-top:1rem; }
+        .lang-btn { background:transparent; border:1.5px solid #e5e7eb; color:#374151; padding:.4rem .9rem; border-radius:8px; font-family:'Cairo',sans-serif; font-size:.8rem; font-weight:700; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.5rem; }
+        .lang-btn:hover { background:#f3f4f6; }
+        .lang-btn.dark { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.25); color:white; }
+        .lang-btn.dark:hover { background:rgba(255,255,255,.25); }
 
-        /* ─── MAIN LAYOUT ─── */
-        #appScreen { display: none; }
+        /* APP */
+        #appScreen { display:none; }
+        .topbar { background:linear-gradient(135deg,#0d1f13,var(--green)); height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 1.25rem; position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.3); }
+        .topbar-left { display:flex; gap:.5rem; align-items:center; }
+        .topbar-title { color:white; font-weight:900; font-size:1rem; }
+        .topbar-sub { color:rgba(255,255,255,.6); font-size:.7rem; }
+        .topbar-btn { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); color:white; padding:.4rem .9rem; border-radius:8px; cursor:pointer; font-family:'Cairo',sans-serif; font-size:.8rem; text-decoration:none; transition:background .2s; }
+        .topbar-btn:hover { background:rgba(255,255,255,.25); }
+        .topbar-btn.danger { background:rgba(220,38,38,.3); border-color:rgba(220,38,38,.5); }
 
-        .topbar {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--green) 100%);
-            height: 60px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 1.5rem; position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 2px 12px rgba(0,0,0,.3);
-        }
-        .topbar-title { color: white; font-weight: 900; font-size: 1.05rem; }
-        .topbar-sub { color: rgba(255,255,255,.6); font-size: .72rem; }
-        .topbar-right { display: flex; gap: .75rem; align-items: center; }
-        .topbar-btn {
-            background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
-            color: white; padding: .4rem .9rem; border-radius: 8px; cursor: pointer;
-            font-family: 'Cairo', sans-serif; font-size: .8rem; transition: background .2s;
-            text-decoration: none;
-        }
-        .topbar-btn:hover { background: rgba(255,255,255,.25); }
-        .topbar-btn.danger { background: rgba(220,38,38,.3); border-color: rgba(220,38,38,.5); }
-        .topbar-btn.danger:hover { background: rgba(220,38,38,.5); }
+        .tab-nav { background:white; border-bottom:2px solid #e5e7eb; display:flex; overflow-x:auto; padding:0 1rem; }
+        .tab-nav::-webkit-scrollbar { display:none; }
+        .tnav-btn { padding:.85rem 1.25rem; border:none; background:none; font-family:'Cairo',sans-serif; font-size:.88rem; font-weight:600; color:#9ca3af; cursor:pointer; white-space:nowrap; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .2s; }
+        .tnav-btn.active { color:var(--green); border-bottom-color:var(--green); }
 
-        /* Tabs nav */
-        .tab-nav {
-            background: white; border-bottom: 2px solid #e5e7eb;
-            display: flex; overflow-x: auto; padding: 0 1rem;
-        }
-        .tab-nav::-webkit-scrollbar { display: none; }
-        .tnav-btn {
-            padding: .85rem 1.25rem; border: none; background: none;
-            font-family: 'Cairo', sans-serif; font-size: .88rem; font-weight: 600;
-            color: #9ca3af; cursor: pointer; white-space: nowrap;
-            border-bottom: 3px solid transparent; margin-bottom: -2px;
-            transition: all .2s;
-        }
-        .tnav-btn.active { color: var(--green); border-bottom-color: var(--green); }
+        .content { padding:1.25rem; max-width:1100px; margin:0 auto; }
 
-        .content { padding: 1.25rem; max-width: 1100px; margin: 0 auto; }
+        /* STATS */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:.75rem; margin-bottom:1.5rem; }
+        .stat-card { background:white; border-radius:14px; padding:1.1rem 1rem; box-shadow:0 2px 8px rgba(0,0,0,.06); display:flex; align-items:center; justify-content:space-between; }
+        .stat-num { font-size:1.75rem; font-weight:900; line-height:1; }
+        .stat-lbl { font-size:.7rem; color:#6b7280; font-weight:600; margin-top:.2rem; }
+        .stat-icon { font-size:1.8rem; }
 
-        /* ─── STAT CARDS ─── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: .75rem; margin-bottom: 1.5rem;
-        }
-        .stat-card {
-            background: white; border-radius: 14px; padding: 1.1rem 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.05);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .stat-num { font-size: 1.75rem; font-weight: 900; line-height: 1; }
-        .stat-label { font-size: .7rem; color: #6b7280; font-weight: 600; margin-top: .2rem; }
-        .stat-icon { font-size: 1.8rem; }
+        /* CHARTS */
+        .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1.5rem; }
+        @media(max-width:640px) { .charts-row{grid-template-columns:1fr} }
+        .chart-card { background:white; border-radius:14px; padding:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+        .chart-title { font-size:.88rem; font-weight:700; color:#374151; margin-bottom:1rem; }
+        .bar-chart { display:flex; flex-direction:column; gap:.5rem; }
+        .bar-row { display:flex; align-items:center; gap:.5rem; font-size:.78rem; }
+        .bar-label { width:75px; text-align:right; color:#6b7280; font-weight:600; font-size:.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .bar-track { flex:1; height:20px; background:#f3f4f6; border-radius:10px; overflow:hidden; }
+        .bar-fill { height:100%; border-radius:10px; transition:width .6s ease; min-width:2px; }
+        .bar-count { width:28px; text-align:left; color:#374151; font-weight:700; font-size:.78rem; }
+        .donut-wrap { display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+        .donut-legend { display:flex; flex-direction:column; gap:.5rem; }
+        .legend-item { display:flex; align-items:center; gap:.5rem; font-size:.8rem; color:#374151; }
+        .legend-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
 
-        /* ─── CHARTS ROW ─── */
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.5rem; }
-        @media (max-width: 640px) { .charts-row { grid-template-columns: 1fr; } }
-        .chart-card { background: white; border-radius: 14px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-        .chart-title { font-size: .88rem; font-weight: 700; color: #374151; margin-bottom: 1rem; }
+        /* TABLES */
+        .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; flex-wrap:wrap; gap:.5rem; }
+        .section-header h3 { font-size:1rem; font-weight:700; color:#1f2937; }
+        .toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+        .search-box { position:relative; }
+        .search-box input { padding:.45rem 1.8rem .45rem .8rem; border:1.5px solid #e2e8f0; border-radius:8px; font-family:'Cairo',sans-serif; font-size:.82rem; direction:rtl; width:180px; }
+        .search-box input:focus { outline:none; border-color:var(--green-light); }
+        .search-icon { position:absolute; right:.5rem; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:.85rem; }
+        .filter-btn { padding:.4rem .8rem; border-radius:20px; border:1.5px solid #e2e8f0; background:white; font-family:'Cairo',sans-serif; font-size:.75rem; font-weight:600; color:#6b7280; cursor:pointer; transition:all .2s; }
+        .filter-btn.active { background:var(--green-soft); border-color:var(--green-light); color:var(--green); }
+        .print-btn { padding:.45rem .9rem; background:var(--green); color:white; border:none; border-radius:8px; font-family:'Cairo',sans-serif; font-size:.8rem; font-weight:700; cursor:pointer; transition:background .2s; }
+        .print-btn:hover { background:var(--green-light); }
+        .panel { background:white; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); overflow:hidden; }
+        table { width:100%; border-collapse:collapse; font-size:.85rem; }
+        th { background:#f8fafc; color:#6b7280; font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; padding:.7rem 1rem; text-align:right; border-bottom:2px solid #f1f5f9; }
+        td { padding:.65rem 1rem; border-bottom:1px solid #f8fafc; color:#374151; text-align:right; }
+        tr:hover td { background:#fafafa; }
+        .badge { display:inline-block; padding:.18rem .55rem; border-radius:20px; font-size:.7rem; font-weight:700; }
+        .badge-green { background:#dcfce7; color:#15803d; }
+        .badge-yellow { background:#fef9c3; color:#92400e; }
+        .badge-village { background:#eff6ff; color:#1d4ed8; }
+        .del-btn { background:none; border:none; color:#dc2626; cursor:pointer; font-size:.85rem; padding:.2rem .4rem; border-radius:4px; transition:background .2s; }
+        .del-btn:hover { background:#fef2f2; }
+        .mobile-cards { display:none; padding:.75rem; }
+        @media(max-width:640px) { table{display:none} .mobile-cards{display:block} }
+        .mc { border:1px solid #e5e7eb; border-radius:10px; padding:.875rem; margin-bottom:.65rem; }
+        .mc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem; }
+        .mc-name { font-weight:700; color:#111827; }
+        .mc-row { display:flex; justify-content:space-between; padding:.28rem 0; border-top:1px solid #f3f4f6; font-size:.8rem; }
+        .mc-lbl { color:#9ca3af; }
+        .mc-val { color:#374151; font-weight:600; }
 
-        /* Bar chart (pure CSS) */
-        .bar-chart { display: flex; flex-direction: column; gap: .5rem; }
-        .bar-row { display: flex; align-items: center; gap: .5rem; font-size: .78rem; }
-        .bar-label { width: 75px; text-align: right; color: #6b7280; font-weight: 600; font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .bar-track { flex: 1; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 10px; transition: width .6s ease; min-width: 2px; }
-        .bar-count { width: 28px; text-align: left; color: #374151; font-weight: 700; font-size: .78rem; }
+        /* LOADING */
+        .loading { padding:2.5rem; text-align:center; color:#9ca3af; }
+        .spinner { display:inline-block; width:2rem; height:2rem; border:3px solid #e5e7eb; border-top-color:var(--green-light); border-radius:50%; animation:spin .8s linear infinite; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .empty { padding:2.5rem; text-align:center; color:#9ca3af; font-size:.9rem; }
 
-        /* Donut chart (SVG) */
-        .donut-wrap { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-        .donut-legend { display: flex; flex-direction: column; gap: .5rem; }
-        .legend-item { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: #374151; }
-        .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+        /* CONFIRM MODAL */
+        .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:500; display:none; align-items:center; justify-content:center; }
+        .overlay.show { display:flex; }
+        .confirm-box { background:white; border-radius:16px; padding:1.75rem; max-width:340px; width:90%; text-align:center; }
+        .confirm-box h4 { font-size:1.1rem; font-weight:700; margin-bottom:.5rem; }
+        .confirm-box p { color:#6b7280; font-size:.85rem; margin-bottom:1.25rem; }
+        .confirm-btns { display:flex; gap:.75rem; justify-content:center; }
+        .btn-cancel { padding:.6rem 1.2rem; border:1.5px solid #e5e7eb; border-radius:8px; background:white; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
+        .btn-delete { padding:.6rem 1.2rem; border:none; border-radius:8px; background:#dc2626; color:white; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
 
-        /* ─── TABLE SECTION ─── */
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: .75rem; flex-wrap: wrap; gap: .5rem;
-        }
-        .section-header h3 { font-size: 1rem; font-weight: 700; color: #1f2937; }
-        .toolbar { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
-        .search-box { position: relative; }
-        .search-box input {
-            padding: .45rem 1.8rem .45rem .8rem; border: 1.5px solid #e2e8f0; border-radius: 8px;
-            font-family: 'Cairo', sans-serif; font-size: .82rem; direction: rtl; width: 180px;
-        }
-        .search-box input:focus { outline: none; border-color: var(--green-light); }
-        .search-icon { position: absolute; right: .5rem; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: .85rem; }
-
-        .filter-btn {
-            padding: .4rem .8rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
-            background: white; font-family: 'Cairo', sans-serif; font-size: .75rem;
-            font-weight: 600; color: #6b7280; cursor: pointer; transition: all .2s;
-        }
-        .filter-btn.active { background: var(--green-soft); border-color: var(--green-light); color: var(--green); }
-        .print-btn {
-            padding: .45rem .9rem; background: var(--green); color: white; border: none;
-            border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: .8rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; gap: .3rem; transition: background .2s;
-        }
-        .print-btn:hover { background: var(--green-light); }
-
-        .panel { background: white; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: hidden; }
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-        th { background: #f8fafc; color: #6b7280; font-weight: 700; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; padding: .7rem 1rem; text-align: right; border-bottom: 2px solid #f1f5f9; }
-        td { padding: .65rem 1rem; border-bottom: 1px solid #f8fafc; color: #374151; text-align: right; }
-        tr:hover td { background: #fafafa; }
-        .badge { display: inline-block; padding: .18rem .55rem; border-radius: 20px; font-size: .7rem; font-weight: 700; }
-        .badge-green { background: #dcfce7; color: #15803d; }
-        .badge-yellow { background: #fef9c3; color: #92400e; }
-        .badge-village { background: #eff6ff; color: #1d4ed8; }
-        .del-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: .85rem; padding: .2rem .4rem; border-radius: 4px; transition: background .2s; }
-        .del-btn:hover { background: #fef2f2; }
-
-        /* Mobile cards */
-        .mobile-cards { display: none; padding: .75rem; }
-        @media (max-width: 640px) { .table-wrap { display: none; } .mobile-cards { display: block; } }
-        .mc { border: 1px solid #e5e7eb; border-radius: 10px; padding: .875rem; margin-bottom: .65rem; background: white; }
-        .mc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
-        .mc-name { font-weight: 700; color: #111827; }
-        .mc-row { display: flex; justify-content: space-between; padding: .28rem 0; border-top: 1px solid #f3f4f6; font-size: .8rem; }
-        .mc-lbl { color: #9ca3af; }
-        .mc-val { color: #374151; font-weight: 600; }
-
-        /* Loading */
-        .loading { padding: 2.5rem; text-align: center; color: #9ca3af; }
-        .spinner { display: inline-block; width: 2rem; height: 2rem; border: 3px solid #e5e7eb; border-top-color: var(--green-light); border-radius: 50%; animation: spin .8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .empty { padding: 2.5rem; text-align: center; color: #9ca3af; font-size: .9rem; }
-
-        /* Confirm dialog */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 500; display: none; align-items: center; justify-content: center; }
-        .overlay.show { display: flex; }
-        .confirm-box { background: white; border-radius: 16px; padding: 1.75rem; max-width: 340px; width: 90%; text-align: center; }
-        .confirm-box h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
-        .confirm-box p { color: #6b7280; font-size: .85rem; margin-bottom: 1.25rem; }
-        .confirm-btns { display: flex; gap: .75rem; justify-content: center; }
-        .btn-cancel { padding: .6rem 1.2rem; border: 1.5px solid #e5e7eb; border-radius: 8px; background: white; font-family: 'Cairo', sans-serif; font-weight: 700; cursor: pointer; color: #374151; }
-        .btn-delete { padding: .6rem 1.2rem; border: none; border-radius: 8px; background: #dc2626; color: white; font-family: 'Cairo', sans-serif; font-weight: 700; cursor: pointer; }
-
-        /* Print */
-        #printTable { display: none; }
+        /* PRINT */
+        #printTable { display:none; }
         @media print {
-            body > *:not(#printTable) { display: none !important; }
-            #printTable { display: block !important; padding: 20px; font-family: Cairo, sans-serif; }
-            @page { margin: 1cm; size: A4 portrait; }
+            body>*:not(#printTable) { display:none !important; }
+            #printTable { display:block !important; padding:20px; font-family:Cairo,sans-serif; }
+            @page { margin:1cm; size:A4 portrait; }
         }
+
+        /* LOADING OVERLAY pour données */
+        .data-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem; gap:.75rem; color:#9ca3af; }
+        .data-error { padding:2rem; text-align:center; color:#dc2626; font-size:.9rem; }
+        .retry-btn { margin-top:.75rem; padding:.5rem 1.2rem; background:var(--green); color:white; border:none; border-radius:8px; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
     </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN ═══ -->
+<!-- ══ LOGIN ══════════════════════════════════════════ -->
 <div id="loginScreen">
     <div class="login-card">
         <div class="login-logo">
             <span class="icon">🔐</span>
-            <h2>لوحة الإدارة</h2>
-            <p>رابطة شباب بلدية ملزم تيشط</p>
+            <h2 id="loginTitle"></h2>
+            <p>رابطة الطليعة الشبابية لبلدية ملزم تيشط</p>
         </div>
-        <div class="login-err" id="loginErr">كلمة المرور غير صحيحة</div>
+        <div class="login-err" id="loginErr"></div>
         <div class="login-field">
-            <label>كلمة المرور</label>
-            <input type="password" id="pwdInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+            <label id="loginPwdLbl"></label>
+            <input type="password" id="pwdInput" onkeydown="if(event.key==='Enter')doLogin()">
         </div>
-        <button class="login-btn" onclick="doLogin()">🔓 دخول</button>
+        <button class="login-btn" id="loginBtnEl" onclick="doLogin()"></button>
+        <div class="login-lang" id="loginLangWrap"></div>
     </div>
 </div>
 
-<!-- ═══ APP ═══ -->
+<!-- ══ APP ════════════════════════════════════════════ -->
 <div id="appScreen">
+
+    <!-- Topbar -->
     <div class="topbar">
         <div>
-            <div class="topbar-title">🛡️ لوحة الإدارة</div>
-            <div class="topbar-sub">رابطة شباب بلدية ملزم تيشط</div>
+            <div class="topbar-title" id="tbTitle"></div>
+            <div class="topbar-sub">رابطة الطليعة الشبابية لبلدية ملزم تيشط</div>
         </div>
-        <div class="topbar-right">
-            <a href="/" class="topbar-btn">← الرئيسية</a>
-            <button class="topbar-btn danger" onclick="logout()">خروج</button>
+        <div class="topbar-left">
+            <div id="appLangWrap"></div>
+            <a href="/" class="topbar-btn" id="tbHome"></a>
+            <button class="topbar-btn danger" id="tbLogout" onclick="logout()"></button>
         </div>
     </div>
 
+    <!-- Tabs -->
     <div class="tab-nav">
-        <button class="tnav-btn active" onclick="showSection('stats')">📊 الإحصاءات</button>
-        <button class="tnav-btn" onclick="showSection('hommes')">👨 الرجال</button>
-        <button class="tnav-btn" onclick="showSection('femmes')">👩 النساء</button>
+        <button class="tnav-btn active" id="tn0" onclick="showSection('stats')"></button>
+        <button class="tnav-btn"        id="tn1" onclick="showSection('hommes')"></button>
+        <button class="tnav-btn"        id="tn2" onclick="showSection('femmes')"></button>
     </div>
 
     <div class="content">
 
-        <!-- ── STATS SECTION ── -->
+        <!-- ── STATS ──────────────────────────────── -->
         <div id="secStats">
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sHommes" style="color:#16a34a">—</div><div class="stat-label">إجمالي الرجال</div></div>
-                    <div class="stat-icon">👨</div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sFemmes" style="color:#be185d">—</div><div class="stat-label">إجمالي النساء</div></div>
-                    <div class="stat-icon">👩</div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sTotal" style="color:#2563eb">—</div><div class="stat-label">إجمالي الأعضاء</div></div>
-                    <div class="stat-icon">👥</div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sTravaille" style="color:#16a34a">—</div><div class="stat-label">يعملون</div></div>
-                    <div class="stat-icon">💼</div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sChomage" style="color:#dc2626">—</div><div class="stat-label">بدون عمل</div></div>
-                    <div class="stat-icon">🏠</div>
-                </div>
-                <div class="stat-card">
-                    <div><div class="stat-num" id="sAuj" style="color:#7c3aed">—</div><div class="stat-label">تسجيل اليوم</div></div>
-                    <div class="stat-icon">📅</div>
-                </div>
+                <div class="stat-card"><div><div class="stat-num" id="sH"   style="color:#16a34a">—</div><div class="stat-lbl" id="sH_lbl"></div></div><div class="stat-icon">👨</div></div>
+                <div class="stat-card"><div><div class="stat-num" id="sF"   style="color:#be185d">—</div><div class="stat-lbl" id="sF_lbl"></div></div><div class="stat-icon">👩</div></div>
+                <div class="stat-card"><div><div class="stat-num" id="sT"   style="color:#2563eb">—</div><div class="stat-lbl" id="sT_lbl"></div></div><div class="stat-icon">👥</div></div>
+                <div class="stat-card"><div><div class="stat-num" id="sTr"  style="color:#16a34a">—</div><div class="stat-lbl" id="sTr_lbl"></div></div><div class="stat-icon">💼</div></div>
+                <div class="stat-card"><div><div class="stat-num" id="sCh"  style="color:#dc2626">—</div><div class="stat-lbl" id="sCh_lbl"></div></div><div class="stat-icon">🏠</div></div>
+                <div class="stat-card"><div><div class="stat-num" id="sAuj" style="color:#7c3aed">—</div><div class="stat-lbl" id="sAuj_lbl"></div></div><div class="stat-icon">📅</div></div>
             </div>
-
             <div class="charts-row">
-                <!-- Villages hommes -->
+                <div class="chart-card"><div class="chart-title" id="chVH"></div><div class="bar-chart" id="chartVH"><div class="data-loading"><div class="spinner"></div></div></div></div>
+                <div class="chart-card"><div class="chart-title" id="chVF"></div><div class="bar-chart" id="chartVF"><div class="data-loading"><div class="spinner"></div></div></div></div>
+                <div class="chart-card"><div class="chart-title" id="chAH"></div><div class="bar-chart" id="chartAH"><div class="data-loading"><div class="spinner"></div></div></div></div>
                 <div class="chart-card">
-                    <div class="chart-title">🏘️ الرجال حسب القرية</div>
-                    <div class="bar-chart" id="chartVillagesH"></div>
-                </div>
-                <!-- Villages femmes -->
-                <div class="chart-card">
-                    <div class="chart-title">🏘️ النساء حسب القرية</div>
-                    <div class="bar-chart" id="chartVillagesF"></div>
-                </div>
-                <!-- Age hommes -->
-                <div class="chart-card">
-                    <div class="chart-title">📊 الرجال حسب الفئة العمرية</div>
-                    <div class="bar-chart" id="chartAgeH"></div>
-                </div>
-                <!-- Travaille donut -->
-                <div class="chart-card">
-                    <div class="chart-title">💼 وضع التشغيل (رجال)</div>
+                    <div class="chart-title" id="chEm"></div>
                     <div class="donut-wrap">
-                        <svg width="100" height="100" viewBox="0 0 36 36" id="donutSvg">
+                        <svg width="100" height="100" viewBox="0 0 36 36">
                             <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e5e7eb" stroke-width="3.5"/>
-                            <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#16a34a" stroke-width="3.5"
-                                stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"
-                                id="donutGreen" style="transition:stroke-dasharray .8s ease"/>
-                            <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#fbbf24" stroke-width="3.5"
-                                stroke-dasharray="0 100" stroke-dashoffset="25"
-                                id="donutYellow" style="transition:stroke-dasharray .8s ease"/>
+                            <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#16a34a" stroke-width="3.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round" id="donutG" style="transition:stroke-dasharray .8s"/>
+                            <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="0 100" stroke-dashoffset="25" id="donutY" style="transition:stroke-dasharray .8s"/>
                         </svg>
                         <div class="donut-legend">
-                            <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div><span id="donutLblOui">يعملون: —</span></div>
-                            <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div><span id="donutLblNon">بدون عمل: —</span></div>
+                            <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div><span id="dLblO"></span></div>
+                            <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div><span id="dLblN"></span></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ── HOMMES SECTION ── -->
+        <!-- ── HOMMES ─────────────────────────────── -->
         <div id="secHommes" style="display:none">
             <div class="section-header">
-                <h3>👨 الرجال المسجلون</h3>
+                <h3 id="secHTitle"></h3>
                 <div class="toolbar">
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="searchH" placeholder="بحث..." oninput="renderHommes()">
+                        <input type="text" id="searchH" oninput="renderH()">
                     </div>
-                    <button class="filter-btn active" onclick="setFilterH('all',this)">الكل</button>
-                    <button class="filter-btn" onclick="setFilterH('travaille',this)">💼 يعملون</button>
-                    <button class="filter-btn" onclick="setFilterH('chomage',this)">🏠 بدون عمل</button>
-                    <button class="print-btn" onclick="printTable('hommes')">🖨️ طباعة</button>
+                    <button class="filter-btn active" onclick="setFH('all',this)"       id="fhAll"></button>
+                    <button class="filter-btn"        onclick="setFH('travaille',this)" id="fhTrav"></button>
+                    <button class="filter-btn"        onclick="setFH('chomage',this)"   id="fhChom"></button>
+                    <button class="print-btn" onclick="doPrint('hommes')" id="pBtnH"></button>
                 </div>
             </div>
             <div class="panel">
-                <div class="table-wrap">
-                    <table dir="rtl">
-                        <thead><tr>
-                            <th>#</th><th>الاسم واللقب</th><th>الهاتف</th>
-                            <th>القرية</th><th>العمر</th><th>الوضع</th><th>التاريخ</th><th></th>
-                        </tr></thead>
-                        <tbody id="hBody"></tbody>
-                    </table>
+                <div id="hLoadingState" class="data-loading"><div class="spinner"></div></div>
+                <div id="hTableWrap" style="display:none">
+                    <div class="table-wrap">
+                        <table dir="rtl">
+                            <thead><tr id="thH"></tr></thead>
+                            <tbody id="hBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="hMobile" class="mobile-cards"></div>
                 </div>
-                <div id="hMobile" class="mobile-cards"></div>
             </div>
         </div>
 
-        <!-- ── FEMMES SECTION ── -->
+        <!-- ── FEMMES ─────────────────────────────── -->
         <div id="secFemmes" style="display:none">
             <div class="section-header">
-                <h3>👩 النساء المسجلات</h3>
+                <h3 id="secFTitle"></h3>
                 <div class="toolbar">
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="searchF" placeholder="بحث..." oninput="renderFemmes()">
+                        <input type="text" id="searchF" oninput="renderF()">
                     </div>
-                    <button class="print-btn" onclick="printTable('femmes')">🖨️ طباعة</button>
+                    <button class="print-btn" onclick="doPrint('femmesMelzem')" id="pBtnF"></button>
                 </div>
             </div>
             <div class="panel">
-                <div class="table-wrap">
-                    <table dir="rtl">
-                        <thead><tr>
-                            <th>#</th><th>الاسم واللقب</th><th>الهاتف</th>
-                            <th>القرية</th><th>العمر</th><th>التاريخ</th><th></th>
-                        </tr></thead>
-                        <tbody id="fBody"></tbody>
-                    </table>
+                <div id="fLoadingState" class="data-loading"><div class="spinner"></div></div>
+                <div id="fTableWrap" style="display:none">
+                    <div class="table-wrap">
+                        <table dir="rtl">
+                            <thead><tr id="thF"></tr></thead>
+                            <tbody id="fBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="fMobile" class="mobile-cards"></div>
                 </div>
-                <div id="fMobile" class="mobile-cards"></div>
             </div>
         </div>
 
     </div><!-- /content -->
 </div><!-- /appScreen -->
 
-<!-- Confirm delete -->
+<!-- ══ CONFIRM MODAL ═════════════════════════════════ -->
 <div class="overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <h4>⚠️ تأكيد الحذف</h4>
-        <p id="confirmMsg">هل أنت متأكد من حذف هذا العضو؟</p>
+        <h4 id="confirmTitle"></h4>
+        <p  id="confirmMsg"></p>
         <div class="confirm-btns">
-            <button class="btn-cancel" onclick="closeConfirm()">إلغاء</button>
-            <button class="btn-delete" onclick="confirmDelete()">حذف</button>
+            <button class="btn-cancel" id="confirmCancel" onclick="closeConfirm()"></button>
+            <button class="btn-delete" id="confirmDel"    onclick="confirmDelete()"></button>
         </div>
     </div>
 </div>
 
 <div id="printTable"></div>
 
+<!-- ══ SCRIPTS ═══════════════════════════════════════ -->
+<script src="/lang.js"></script>
 <script>
-// ── AUTH ──
-const ADMIN_PWD = 'admin2026'; // changez ce mot de passe !
-let authed = false;
 
+const ADMIN_PWD = 'admin2026';
+let hommesData  = [];
+let femmesData  = [];
+let filterH     = 'all';
+let deleteTarget = null;
+let deleteType   = null;
+let dataLoaded   = false;   // ← flag pour éviter double chargement
+
+// ── TRADUCTIONS ──────────────────────────────────────
+function applyLang() {
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir  = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+    // Login
+    document.getElementById('loginTitle').textContent   = t('admin.login.title');
+    document.getElementById('loginPwdLbl').textContent  = t('admin.login.pwd');
+    document.getElementById('loginBtnEl').textContent   = t('admin.login.btn');
+    document.getElementById('loginErr').textContent     = t('admin.login.err');
+
+    // Topbar
+    document.getElementById('tbTitle').textContent  = '🛡️ ' + t('admin.title');
+    document.getElementById('tbHome').textContent   = t('admin.home');
+    document.getElementById('tbLogout').textContent = t('admin.logout');
+
+    // Tabs
+    document.getElementById('tn0').textContent = t('admin.tab.stats');
+    document.getElementById('tn1').textContent = t('admin.tab.hommes');
+    document.getElementById('tn2').textContent = t('admin.tab.femmes');
+
+    // Stats labels
+    document.getElementById('sH_lbl').textContent   = t('admin.stat.hommes');
+    document.getElementById('sF_lbl').textContent   = t('admin.stat.femmes');
+    document.getElementById('sT_lbl').textContent   = t('admin.stat.total');
+    document.getElementById('sTr_lbl').textContent  = t('admin.stat.travaille');
+    document.getElementById('sCh_lbl').textContent  = t('admin.stat.chomage');
+    document.getElementById('sAuj_lbl').textContent = t('admin.stat.today');
+
+    // Chart titles
+    document.getElementById('chVH').textContent = t('admin.chart.vilH');
+    document.getElementById('chVF').textContent = t('admin.chart.vilF');
+    document.getElementById('chAH').textContent = t('admin.chart.ageH');
+    document.getElementById('chEm').textContent = t('admin.chart.emploi');
+
+    // Sections
+    document.getElementById('secHTitle').textContent = t('admin.sec.hommes');
+    document.getElementById('secFTitle').textContent = t('admin.sec.femmes');
+    document.getElementById('searchH').placeholder   = t('admin.search');
+    document.getElementById('searchF').placeholder   = t('admin.search');
+    document.getElementById('fhAll').textContent     = t('list.filter.all');
+    document.getElementById('fhTrav').textContent    = t('list.filter.travaille');
+    document.getElementById('fhChom').textContent    = t('list.filter.chomage');
+    document.getElementById('pBtnH').textContent     = t('admin.print');
+    document.getElementById('pBtnF').textContent     = t('admin.print');
+
+    // Confirm modal
+    document.getElementById('confirmTitle').textContent  = t('admin.confirm.title');
+    document.getElementById('confirmCancel').textContent = t('admin.confirm.cancel');
+    document.getElementById('confirmDel').textContent    = t('admin.confirm.delete');
+
+    // En-têtes des tableaux
+    document.getElementById('thH').innerHTML = ['col.num','col.nom','col.tel','col.village','col.age','col.situation','col.date',''].map(k => `<th>${k ? t(k) : ''}</th>`).join('');
+    document.getElementById('thF').innerHTML = ['col.num','col.nom','col.tel','col.village','col.age','col.date',''].map(k => `<th>${k ? t(k) : ''}</th>`).join('');
+
+    // Boutons de langue
+    const loginBtn = `<button class="lang-btn" onclick="toggleLang()" id="langBtn">
+        <span id="langFlag"></span><span id="langLabel"></span>
+    </button>`;
+    document.getElementById('loginLangWrap').innerHTML = loginBtn;
+
+    const appBtn = `<button class="lang-btn dark" onclick="toggleLang()" id="langBtnApp">
+        <span id="langFlagApp"></span><span id="langLabelApp"></span>
+    </button>`;
+    document.getElementById('appLangWrap').innerHTML = appBtn;
+
+    // Remplir les drapeaux/labels
+    _fillLangBtn('langFlag',    'langLabel');
+    _fillLangBtn('langFlagApp', 'langLabelApp');
+
+    // Re-render si données chargées
+    if (dataLoaded) {
+        renderH();
+        renderF();
+        buildStats();
+    }
+}
+
+function _fillLangBtn(flagId, labelId) {
+    const flag  = document.getElementById(flagId);
+    const label = document.getElementById(labelId);
+    if (!flag || !label) return;
+    if (currentLang === 'ar') { flag.textContent = '🇫🇷'; label.textContent = 'FR'; }
+    else                      { flag.textContent = '🇲🇷'; label.textContent = 'عر'; }
+}
+
+// ── AUTH ─────────────────────────────────────────────
 function doLogin() {
-    const pwd = document.getElementById('pwdInput').value;
-    if (pwd === ADMIN_PWD) {
-        authed = true;
+    if (document.getElementById('pwdInput').value === ADMIN_PWD) {
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('appScreen').style.display = 'block';
-        loadAll();
+        document.getElementById('appScreen').style.display   = 'block';
+        // Charger les données seulement si pas encore chargées
+        if (!dataLoaded) loadAll();
     } else {
         document.getElementById('loginErr').style.display = 'block';
         document.getElementById('pwdInput').value = '';
     }
 }
+
 function logout() {
-    authed = false;
     document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display   = 'none';
+    document.getElementById('pwdInput').value = '';
 }
 
-// ── TABS ──
+// ── TABS ─────────────────────────────────────────────
 function showSection(s) {
-    ['Stats','Hommes','Femmes'].forEach(n => {
-        document.getElementById('sec'+n).style.display = s === n.toLowerCase() ? 'block' : 'none';
-    });
-    document.querySelectorAll('.tnav-btn').forEach((b,i) => {
-        b.classList.toggle('active', ['stats','hommes','femmes'][i] === s);
+    const sections = ['Stats', 'Hommes', 'Femmes'];
+    sections.forEach((n, i) => {
+        document.getElementById('sec' + n).style.display = s === n.toLowerCase() ? 'block' : 'none';
+        document.getElementById('tn' + i).classList.toggle('active', s === n.toLowerCase());
     });
 }
 
-// ── DATA ──
-let hommesData = [], femmesData = [];
-let filterH = 'all';
-let deleteTarget = null, deleteType = null;
-
+// ── CHARGEMENT DES DONNÉES ───────────────────────────
 async function loadAll() {
+    // Afficher les spinners
+    showLoading(true);
+
     try {
-        const [r1,r2] = await Promise.all([fetch('/api/membres'), fetch('/api/femmes')]);
-        const d1 = await r1.json(), d2 = await r2.json();
-        hommesData = d1.membres || [];
-        femmesData = d2.femmes || [];
+        const [r1, r2] = await Promise.all([
+            fetch('/api/membreMelzem'),
+            fetch('/api/femmesMelzem')
+        ]);
+
+        if (!r1.ok || !r2.ok) throw new Error('Réponse API invalide');
+
+        const d1 = await r1.json();
+        const d2 = await r2.json();
+
+        hommesData = d1.membreMelzem  || [];
+        femmesData = d2.femmesMelzem  || [];
+        dataLoaded = true;
+
+        showLoading(false);
         buildStats();
-        renderHommes();
-        renderFemmes();
-    } catch(e) { console.error(e); }
+        renderH();
+        renderF();
+
+    } catch (err) {
+        console.error('Erreur chargement données:', err);
+        showError();
+    }
 }
 
-// ── STATS ──
-function buildStats() {
-    const h = hommesData, f = femmesData;
-    const travaille = h.filter(m => m.situation === 'نعم').length;
-    const chomage = h.length - travaille;
-    const today = new Date().toDateString();
-    const auj = [...h,...f].filter(m => new Date(m.date_inscription).toDateString() === today).length;
+function showLoading(isLoading) {
+    document.getElementById('hLoadingState').style.display = isLoading ? 'flex'  : 'none';
+    document.getElementById('hTableWrap').style.display    = isLoading ? 'none'  : 'block';
+    document.getElementById('fLoadingState').style.display = isLoading ? 'flex'  : 'none';
+    document.getElementById('fTableWrap').style.display    = isLoading ? 'none'  : 'block';
+}
 
-    document.getElementById('sHommes').textContent = h.length;
-    document.getElementById('sFemmes').textContent = f.length;
-    document.getElementById('sTotal').textContent = h.length + f.length;
-    document.getElementById('sTravaille').textContent = travaille;
-    document.getElementById('sChomage').textContent = chomage;
+function showError() {
+    const errHTML = `<div class="data-error">
+        ❌ ${currentLang === 'ar' ? 'خطأ في تحميل البيانات' : 'Erreur de chargement'}
+        <br><button class="retry-btn" onclick="loadAll()">
+            ${currentLang === 'ar' ? '🔄 إعادة المحاولة' : '🔄 Réessayer'}
+        </button>
+    </div>`;
+    document.getElementById('hLoadingState').innerHTML = errHTML;
+    document.getElementById('fLoadingState').innerHTML = errHTML;
+}
+
+// ── STATS & CHARTS ───────────────────────────────────
+function buildStats() {
+    const trav  = hommesData.filter(m => m.situation === 'نعم').length;
+    const chom  = hommesData.length - trav;
+    const today = new Date().toDateString();
+    const auj   = [...hommesData, ...femmesData].filter(m => new Date(m.date_inscription).toDateString() === today).length;
+
+    document.getElementById('sH').textContent   = hommesData.length;
+    document.getElementById('sF').textContent   = femmesData.length;
+    document.getElementById('sT').textContent   = hommesData.length + femmesData.length;
+    document.getElementById('sTr').textContent  = trav;
+    document.getElementById('sCh').textContent  = chom;
     document.getElementById('sAuj').textContent = auj;
 
-    // Villages hommes
-    buildBarChart('chartVillagesH', countBy(h, 'village'), '#2e8b57');
-    // Villages femmes
-    buildBarChart('chartVillagesF', countBy(f, 'village'), '#be185d');
-    // Age hommes
-    buildBarChart('chartAgeH', countBy(h, 'age'), '#7c3aed');
-    // Donut
-    const pct = h.length ? Math.round((travaille / h.length) * 100) : 0;
-    const offset = 25;
-    document.getElementById('donutGreen').setAttribute('stroke-dasharray', `${pct} ${100-pct}`);
-    document.getElementById('donutYellow').setAttribute('stroke-dasharray', `${100-pct} ${pct}`);
-    document.getElementById('donutYellow').setAttribute('stroke-dashoffset', 25 - pct);
-    document.getElementById('donutLblOui').textContent = `يعملون: ${travaille} (${pct}%)`;
-    document.getElementById('donutLblNon').textContent = `بدون عمل: ${chomage} (${100-pct}%)`;
+    buildBar('chartVH', countBy(hommesData, 'village'));
+    buildBar('chartVF', countBy(femmesData, 'village'));
+    buildBar('chartAH', countBy(hommesData, 'age'));
+
+    const pct = hommesData.length ? Math.round(trav / hommesData.length * 100) : 0;
+    document.getElementById('donutG').setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
+    document.getElementById('donutY').setAttribute('stroke-dasharray', `${100 - pct} ${pct}`);
+    document.getElementById('donutY').setAttribute('stroke-dashoffset', 25 - pct);
+    document.getElementById('dLblO').textContent = `${t('admin.donut.oui')}: ${trav} (${pct}%)`;
+    document.getElementById('dLblN').textContent = `${t('admin.donut.non')}: ${chom} (${100 - pct}%)`;
 }
 
 function countBy(arr, key) {
-    const map = {};
-    arr.forEach(m => { const v = m[key] || 'غير محدد'; map[v] = (map[v]||0)+1; });
-    return Object.entries(map).sort((a,b) => b[1]-a[1]);
+    const m = {};
+    arr.forEach(x => { const v = x[key] || '?'; m[v] = (m[v] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
 }
 
-const COLORS = ['#2e8b57','#16a34a','#059669','#0d9488','#0891b2','#7c3aed','#be185d','#dc2626'];
-function buildBarChart(id, entries, color) {
+const COLS = ['#2e8b57','#16a34a','#059669','#0d9488','#0891b2','#7c3aed','#be185d','#dc2626'];
+
+function buildBar(id, entries) {
     const el = document.getElementById(id);
-    if (!entries.length) { el.innerHTML = '<p style="color:#9ca3af;font-size:.8rem;text-align:center">لا توجد بيانات</p>'; return; }
+    if (!entries.length) {
+        el.innerHTML = `<p style="color:#9ca3af;font-size:.8rem;text-align:center">${t('admin.chart.nodata')}</p>`;
+        return;
+    }
     const max = entries[0][1];
-    el.innerHTML = entries.map(([label, count], i) => `
-        <div class="bar-row">
-            <div class="bar-label" title="${label}">${label}</div>
-            <div class="bar-track">
-                <div class="bar-fill" style="width:${max ? (count/max*100) : 0}%; background:${COLORS[i % COLORS.length]}"></div>
-            </div>
-            <div class="bar-count">${count}</div>
-        </div>
-    `).join('');
+    el.innerHTML = entries.map(([lbl, cnt], i) => `<div class="bar-row">
+        <div class="bar-label" title="${lbl}">${lbl}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${max ? (cnt / max * 100) : 0}%;background:${COLS[i % COLS.length]}"></div></div>
+        <div class="bar-count">${cnt}</div>
+    </div>`).join('');
 }
 
-// ── RENDER TABLES ──
+// ── TABLES ───────────────────────────────────────────
 function fmtDate(d) {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', {year:'numeric',month:'short',day:'numeric'});
+    return new Date(d).toLocaleDateString(
+        currentLang === 'fr' ? 'fr-FR' : 'ar-MA',
+        { year:'numeric', month:'short', day:'numeric' }
+    );
 }
 
-function getFilteredH() {
-    let data = hommesData;
-    const q = document.getElementById('searchH')?.value.toLowerCase() || '';
-    if (q) data = data.filter(m => m.nom?.toLowerCase().includes(q) || m.village?.toLowerCase().includes(q) || m.telephone?.includes(q));
-    if (filterH === 'travaille') data = data.filter(m => m.situation === 'نعم');
-    if (filterH === 'chomage') data = data.filter(m => m.situation !== 'نعم');
-    return data;
+function getFH() {
+    let d = hommesData;
+    const q = (document.getElementById('searchH')?.value || '').toLowerCase();
+    if (q) d = d.filter(m =>
+        m.nom?.toLowerCase().includes(q) ||
+        m.village?.toLowerCase().includes(q) ||
+        m.telephone?.includes(q)
+    );
+    if (filterH === 'travaille') d = d.filter(m => m.situation === 'نعم');
+    if (filterH === 'chomage')   d = d.filter(m => m.situation !== 'نعم');
+    return d;
 }
 
-function renderHommes() {
-    const data = getFilteredH();
-    const tbody = document.getElementById('hBody');
+function renderH() {
+    if (!dataLoaded) return;
+    const data   = getFH();
+    const tbody  = document.getElementById('hBody');
     const mobile = document.getElementById('hMobile');
+
     if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">لا توجد نتائج</td></tr>';
-        mobile.innerHTML = '<div class="empty">لا توجد نتائج</div>'; return;
+        tbody.innerHTML  = `<tr><td colspan="8" class="empty">${t('admin.empty')}</td></tr>`;
+        mobile.innerHTML = `<div class="empty">${t('admin.empty')}</div>`;
+        return;
     }
-    tbody.innerHTML = data.map((m,i) => `
-        <tr>
-            <td style="color:#9ca3af">${i+1}</td>
-            <td><strong>${m.nom}</strong></td>
-            <td>${m.telephone||'—'}</td>
-            <td><span class="badge badge-village">${m.village||'—'}</span></td>
-            <td>${m.age||'—'}</td>
-            <td><span class="badge ${m.situation==='نعم'?'badge-green':'badge-yellow'}">${m.situation==='نعم'?'💼 يعمل':'🏠 بدون عمل'}</span></td>
-            <td style="color:#9ca3af;font-size:.78rem">${fmtDate(m.date_inscription)}</td>
-            <td><button class="del-btn" onclick="askDelete(${m.id},'hommes','${m.nom.replace(/'/g,"\\'")}')">🗑️</button></td>
-        </tr>
-    `).join('');
-    mobile.innerHTML = data.map((m,i) => `
-        <div class="mc">
-            <div class="mc-header">
-                <span class="mc-name">${i+1}. ${m.nom}</span>
-                <span class="badge ${m.situation==='نعم'?'badge-green':'badge-yellow'}">${m.situation==='نعم'?'💼 يعمل':'🏠 بدون عمل'}</span>
-            </div>
-            <div class="mc-row"><span class="mc-lbl">الهاتف</span><span class="mc-val">${m.telephone||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">القرية</span><span class="mc-val">${m.village||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">العمر</span><span class="mc-val">${m.age||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">التاريخ</span><span class="mc-val">${fmtDate(m.date_inscription)}</span></div>
-            <div style="text-align:left;margin-top:.5rem">
-                <button class="del-btn" onclick="askDelete(${m.id},'hommes','${m.nom.replace(/'/g,"\\'")}')">🗑️ حذف</button>
-            </div>
+
+    tbody.innerHTML = data.map((m, i) => `<tr>
+        <td style="color:#9ca3af">${i + 1}</td>
+        <td><strong>${m.nom}</strong></td>
+        <td>${m.telephone || '—'}</td>
+        <td><span class="badge badge-village">${m.village || '—'}</span></td>
+        <td>${m.age || '—'}</td>
+        <td><span class="badge ${m.situation === 'نعم' ? 'badge-green' : 'badge-yellow'}">
+            ${m.situation === 'نعم' ? t('badge.travaille') : t('badge.chomage')}
+        </span></td>
+        <td style="color:#9ca3af;font-size:.78rem">${fmtDate(m.date_inscription)}</td>
+        <td><button class="del-btn" onclick="askDelete(${m.id},'hommes','${m.nom.replace(/'/g,"\\'")}')">🗑️</button></td>
+    </tr>`).join('');
+
+    mobile.innerHTML = data.map((m, i) => `<div class="mc">
+        <div class="mc-header">
+            <span class="mc-name">${i + 1}. ${m.nom}</span>
+            <span class="badge ${m.situation === 'نعم' ? 'badge-green' : 'badge-yellow'}">
+                ${m.situation === 'نعم' ? t('badge.travaille') : t('badge.chomage')}
+            </span>
         </div>
-    `).join('');
+        <div class="mc-row"><span class="mc-lbl">${t('col.tel')}</span><span class="mc-val">${m.telephone || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.village')}</span><span class="mc-val">${m.village || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.age')}</span><span class="mc-val">${m.age || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.date')}</span><span class="mc-val">${fmtDate(m.date_inscription)}</span></div>
+        <div style="text-align:left;margin-top:.5rem">
+            <button class="del-btn" onclick="askDelete(${m.id},'hommes','${m.nom.replace(/'/g,"\\'")}')">
+                🗑️ ${t('admin.confirm.delete')}
+            </button>
+        </div>
+    </div>`).join('');
 }
 
-function renderFemmes() {
-    const q = document.getElementById('searchF')?.value.toLowerCase() || '';
-    let data = femmesData;
-    if (q) data = data.filter(m => m.nom?.toLowerCase().includes(q) || m.village?.toLowerCase().includes(q));
-    const tbody = document.getElementById('fBody');
+function renderF() {
+    if (!dataLoaded) return;
+    const q    = (document.getElementById('searchF')?.value || '').toLowerCase();
+    const data = femmesData.filter(m =>
+        !q || m.nom?.toLowerCase().includes(q) || m.village?.toLowerCase().includes(q)
+    );
+    const tbody  = document.getElementById('fBody');
     const mobile = document.getElementById('fMobile');
+
     if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="empty">لا توجد نتائج</td></tr>';
-        mobile.innerHTML = '<div class="empty">لا توجد نتائج</div>'; return;
+        tbody.innerHTML  = `<tr><td colspan="7" class="empty">${t('admin.empty')}</td></tr>`;
+        mobile.innerHTML = `<div class="empty">${t('admin.empty')}</div>`;
+        return;
     }
-    tbody.innerHTML = data.map((m,i) => `
-        <tr>
-            <td style="color:#9ca3af">${i+1}</td>
-            <td><strong>${m.nom}</strong></td>
-            <td>${m.telephone||'—'}</td>
-            <td><span class="badge badge-village">${m.village||'—'}</span></td>
-            <td>${m.age||'—'}</td>
-            <td style="color:#9ca3af;font-size:.78rem">${fmtDate(m.date_inscription)}</td>
-            <td><button class="del-btn" onclick="askDelete(${m.id},'femmes','${m.nom.replace(/'/g,"\\'")}')">🗑️</button></td>
-        </tr>
-    `).join('');
-    mobile.innerHTML = data.map((m,i) => `
-        <div class="mc">
-            <div class="mc-header"><span class="mc-name">${i+1}. ${m.nom}</span><span style="font-size:1.2rem">👩</span></div>
-            <div class="mc-row"><span class="mc-lbl">الهاتف</span><span class="mc-val">${m.telephone||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">القرية</span><span class="mc-val">${m.village||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">العمر</span><span class="mc-val">${m.age||'—'}</span></div>
-            <div class="mc-row"><span class="mc-lbl">التاريخ</span><span class="mc-val">${fmtDate(m.date_inscription)}</span></div>
-            <div style="text-align:left;margin-top:.5rem">
-                <button class="del-btn" onclick="askDelete(${m.id},'femmes','${m.nom.replace(/'/g,"\\'")}')">🗑️ حذف</button>
-            </div>
+
+    tbody.innerHTML = data.map((m, i) => `<tr>
+        <td style="color:#9ca3af">${i + 1}</td>
+        <td><strong>${m.nom}</strong></td>
+        <td>${m.telephone || '—'}</td>
+        <td><span class="badge badge-village">${m.village || '—'}</span></td>
+        <td>${m.age || '—'}</td>
+        <td style="color:#9ca3af;font-size:.78rem">${fmtDate(m.date_inscription)}</td>
+        <td><button class="del-btn" onclick="askDelete(${m.id},'femmesMelzem','${m.nom.replace(/'/g,"\\'")}')">🗑️</button></td>
+    </tr>`).join('');
+
+    mobile.innerHTML = data.map((m, i) => `<div class="mc">
+        <div class="mc-header">
+            <span class="mc-name">${i + 1}. ${m.nom}</span>
+            <span style="font-size:1.2rem">👩</span>
         </div>
-    `).join('');
+        <div class="mc-row"><span class="mc-lbl">${t('col.tel')}</span><span class="mc-val">${m.telephone || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.village')}</span><span class="mc-val">${m.village || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.age')}</span><span class="mc-val">${m.age || '—'}</span></div>
+        <div class="mc-row"><span class="mc-lbl">${t('col.date')}</span><span class="mc-val">${fmtDate(m.date_inscription)}</span></div>
+        <div style="text-align:left;margin-top:.5rem">
+            <button class="del-btn" onclick="askDelete(${m.id},'femmesMelzem','${m.nom.replace(/'/g,"\\'")}')">
+                🗑️ ${t('admin.confirm.delete')}
+            </button>
+        </div>
+    </div>`).join('');
 }
 
-function setFilterH(f, btn) {
+function setFH(f, btn) {
     filterH = f;
     document.querySelectorAll('#secHommes .filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    renderHommes();
+    renderH();
 }
 
-// ── DELETE ──
+// ── SUPPRESSION ──────────────────────────────────────
 function askDelete(id, type, nom) {
-    deleteTarget = id; deleteType = type;
-    document.getElementById('confirmMsg').textContent = `هل أنت متأكد من حذف "${nom}"؟ لا يمكن التراجع.`;
+    deleteTarget = id;
+    deleteType   = type;
+    document.getElementById('confirmMsg').textContent = t('admin.confirm.msg').replace('{name}', nom);
     document.getElementById('confirmOverlay').classList.add('show');
 }
-function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); deleteTarget = null; }
-async function confirmDelete() {
-    if (!deleteTarget) return;
-    const url = deleteType === 'hommes' ? `/api/membres/${deleteTarget}` : `/api/femmes/${deleteTarget}`;
-    try {
-        const res = await fetch(url, { method: 'DELETE' });
-        const r = await res.json();
-        if (r.success) { await loadAll(); closeConfirm(); }
-    } catch(e) { alert('خطأ في الحذف'); }
+
+function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    deleteTarget = null;
+    deleteType   = null;
 }
 
-// ── PRINT ──
-function printTable(type) {
-    const data = type === 'hommes' ? getFilteredH() : femmesData;
-    const isH = type === 'hommes';
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('fr-FR', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+async function confirmDelete() {
+    if (!deleteTarget) return;
+    try {
+        const res = await fetch(`/api/${deleteType}/${deleteTarget}`, { method: 'DELETE' });
+        const r   = await res.json();
+        if (r.success) { await loadAll(); closeConfirm(); }
+        else alert('Erreur suppression');
+    } catch { alert('Erreur réseau / خطأ في الشبكة'); }
+}
+
+// ── IMPRESSION ───────────────────────────────────────
+function doPrint(type) {
+    const isH    = type === 'hommes';
+    const data   = isH ? getFH() : femmesData;
+    const dateStr = new Date().toLocaleDateString(
+        currentLang === 'fr' ? 'fr-FR' : 'ar-MA',
+        { weekday:'long', year:'numeric', month:'long', day:'numeric' }
+    );
     let html = `<div style="padding:20px;font-family:Cairo,sans-serif;">
         <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:3px double #1a5c38;">
             <h1 style="font-size:20pt;font-weight:900;color:#1a5c38;margin-bottom:4px;">رابطة شباب بلدية ملزم تيشط</h1>
-            <p style="color:#888;font-size:9pt;">Association de la Jeunesse de Melzam Tichit — Mauritanie</p>
-            <p style="color:#aaa;font-size:8pt;margin-top:4px;">طُبع بتاريخ: ${dateStr}</p>
+            <p style="color:#888;font-size:9pt;">Association de la Jeunesse de Melzam Tichit</p>
+            <p style="color:#aaa;font-size:8pt;margin-top:4px;">${t('print.printed')} ${dateStr}</p>
         </div>
-        <h2 style="font-size:13pt;font-weight:700;text-align:center;margin-bottom:14px;color:#333;">
-            ${isH ? 'قائمة الرجال المسجلين' : 'قائمة النساء المسجلات'} (${data.length} عضو)
+        <h2 style="font-size:13pt;font-weight:700;text-align:center;margin-bottom:14px;">
+            ${isH ? t('print.title.h') : t('print.title.f')} (${data.length} ${t('print.member')})
         </h2>
         <table style="width:100%;border-collapse:collapse;font-size:9pt;" dir="rtl">
-            <thead><tr style="background:#e8f5ee;">
-                <th style="border:1px solid #ccc;padding:6px;">#</th>
-                <th style="border:1px solid #ccc;padding:6px;">الاسم واللقب</th>
-                <th style="border:1px solid #ccc;padding:6px;">الهاتف</th>
-                <th style="border:1px solid #ccc;padding:6px;">القرية</th>
-                <th style="border:1px solid #ccc;padding:6px;">العمر</th>
-                ${isH ? '<th style="border:1px solid #ccc;padding:6px;">الوضع</th>' : ''}
-                <th style="border:1px solid #ccc;padding:6px;">التاريخ</th>
-            </tr></thead>
-            <tbody>`;
-    data.forEach((m,i) => {
+        <thead><tr style="background:#e8f5ee;">
+            <th style="border:1px solid #ccc;padding:6px;">#</th>
+            <th style="border:1px solid #ccc;padding:6px;">${t('col.nom')}</th>
+            <th style="border:1px solid #ccc;padding:6px;">${t('col.tel')}</th>
+            <th style="border:1px solid #ccc;padding:6px;">${t('col.village')}</th>
+            <th style="border:1px solid #ccc;padding:6px;">${t('col.age')}</th>
+            ${isH ? `<th style="border:1px solid #ccc;padding:6px;">${t('col.situation')}</th>` : ''}
+            <th style="border:1px solid #ccc;padding:6px;">${t('col.date')}</th>
+        </tr></thead><tbody>`;
+
+    data.forEach((m, i) => {
         html += `<tr>
-            <td style="border:1px solid #ddd;padding:5px;text-align:center;">${i+1}</td>
+            <td style="border:1px solid #ddd;padding:5px;text-align:center;">${i + 1}</td>
             <td style="border:1px solid #ddd;padding:5px;font-weight:600;">${m.nom}</td>
-            <td style="border:1px solid #ddd;padding:5px;">${m.telephone||'—'}</td>
-            <td style="border:1px solid #ddd;padding:5px;">${m.village||'—'}</td>
-            <td style="border:1px solid #ddd;padding:5px;">${m.age||'—'}</td>
-            ${isH ? `<td style="border:1px solid #ddd;padding:5px;">${m.situation==='نعم'?'يعمل':'بدون عمل'}</td>` : ''}
+            <td style="border:1px solid #ddd;padding:5px;">${m.telephone || '—'}</td>
+            <td style="border:1px solid #ddd;padding:5px;">${m.village || '—'}</td>
+            <td style="border:1px solid #ddd;padding:5px;">${m.age || '—'}</td>
+            ${isH ? `<td style="border:1px solid #ddd;padding:5px;">${m.situation === 'نعم' ? t('print.travaille') : t('print.chomage')}</td>` : ''}
             <td style="border:1px solid #ddd;padding:5px;font-size:8pt;">${fmtDate(m.date_inscription)}</td>
         </tr>`;
     });
+
     html += `</tbody></table></div>`;
     document.getElementById('printTable').innerHTML = html;
     setTimeout(() => window.print(), 100);
 }
+
+// ── INIT ─────────────────────────────────────────────
+applyLang();
+
 </script>
 </body>
 </html>

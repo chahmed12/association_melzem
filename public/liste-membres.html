@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قائمة الأعضاء - رابطة شباب ملزم تيشط</title>
+    <title>إحصاءات الأعضاء - رابطة الطليعة الشبابية لبلدية ملزم تيشط</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,19 +11,22 @@
             --green-light: #2e8b57;
             --green-soft: #e8f5ee;
             --gold: #c9a84c;
-            --dark: #0d1f13;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Cairo', sans-serif; background: #f1f5f9; min-height: 100vh; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+        }
 
-        /* Header */
+        /* ── HEADER ── */
         .header {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--green) 60%, var(--green-light) 100%);
-            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #0d1f13, var(--green) 60%, var(--green-light));
+            padding: 1rem 1.25rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,.3);
             position: relative;
         }
         .header::after {
@@ -33,521 +36,334 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
+        .header-center { text-align: center; flex: 1; }
         .header-title {
             color: white;
-            font-size: clamp(1rem, 3vw, 1.4rem);
+            font-size: clamp(.95rem, 3vw, 1.3rem);
             font-weight: 900;
-            text-align: center;
-            flex: 1;
         }
-        .header-subtitle {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.7rem;
-            text-align: center;
+        .header-sub { color: rgba(255,255,255,.6); font-size: .7rem; margin-top: .2rem; }
+        .header-side {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            min-width: 90px;
         }
         .back-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.25);
             color: white;
-            padding: 0.45rem 0.9rem;
+            padding: .4rem .8rem;
             border-radius: 8px;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: .8rem;
             font-family: 'Cairo', sans-serif;
             white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,.25); }
+
+        /* ── MAIN CONTENT ── */
+        .main {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
         }
 
-        /* Stats */
+        /* ── SECTION TITLE ── */
+        .section-title {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+        .section-title h2 {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--green);
+        }
+        .section-title p {
+            font-size: .82rem;
+            color: #9ca3af;
+            margin-top: .3rem;
+        }
+
+        /* ── STATS GRID ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            padding: 1.25rem 1rem 0;
-            max-width: 1000px;
-            margin: 0 auto;
+            gap: 1rem;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 500px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid .stat-wide { grid-column: span 2; }
+            .stat-total { grid-column: span 2; }
         }
 
         .stat-card {
             background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .stat-num { font-size: 1.6rem; font-weight: 900; line-height: 1; }
-        .stat-label { font-size: 0.72rem; color: #6b7280; font-weight: 600; margin-top: 0.2rem; }
-        .stat-icon { font-size: 1.6rem; }
-
-        /* Main content */
-        .main { max-width: 1000px; margin: 1rem auto; padding: 0 1rem 3rem; }
-
-        .panel {
-            background: white;
             border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-        }
-
-        /* Tabs */
-        .tabs { display: flex; border-bottom: 2px solid #f1f5f9; }
-        .tab-btn {
-            flex: 1;
-            padding: 1rem;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: #9ca3af;
-            transition: all 0.2s;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-        }
-        .tab-btn.active-green { color: var(--green); border-bottom-color: var(--green); background: var(--green-soft); }
-        .tab-btn.active-pink { color: #be185d; border-bottom-color: #be185d; background: #fce8f0; }
-
-        /* Toolbar */
-        .toolbar {
+            padding: 1.4rem 1rem;
             display: flex;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: #f8fafc;
-            border-bottom: 1px solid #f1f5f9;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
-        }
-        .search-box {
-            flex: 1;
-            min-width: 180px;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,.07);
+            border: 1px solid rgba(0,0,0,.05);
+            transition: transform .2s, box-shadow .2s;
             position: relative;
+            overflow: hidden;
         }
-        .search-box input {
-            width: 100%;
-            padding: 0.5rem 2rem 0.5rem 0.75rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.875rem;
-            direction: rtl;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
         }
-        .search-box input:focus { outline: none; border-color: var(--green-light); }
-        .search-icon { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.9rem; }
+        .stat-card.hommes::before { background: linear-gradient(90deg, #16a34a, #4ade80); }
+        .stat-card.femmes::before { background: linear-gradient(90deg, #be185d, #f472b6); }
+        .stat-card.total::before  { background: linear-gradient(90deg, #2563eb, #60a5fa); }
 
-        .filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-        .filter-btn {
-            padding: 0.4rem 0.85rem;
-            border-radius: 20px;
-            border: 1.5px solid #e2e8f0;
-            background: white;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 600;
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        }
+
+        .stat-icon { font-size: 2rem; margin-bottom: .6rem; }
+        .stat-num {
+            font-size: 2.4rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: .3rem;
+        }
+        .stat-card.hommes .stat-num { color: #16a34a; }
+        .stat-card.femmes .stat-num { color: #be185d; }
+        .stat-card.total  .stat-num { color: #2563eb; }
+
+        .stat-label {
+            font-size: .78rem;
             color: #6b7280;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .filter-btn.active { background: var(--green-soft); border-color: var(--green-light); color: var(--green); }
-
-        .print-btn {
-            padding: 0.5rem 1rem;
-            background: var(--green);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.82rem;
             font-weight: 700;
-            cursor: pointer;
+        }
+
+        /* ── LOADING ── */
+        .loading {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.4rem;
-            white-space: nowrap;
-            transition: background 0.2s;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+            color: #9ca3af;
+            font-size: .9rem;
         }
-        .print-btn:hover { background: var(--green-light); }
-
-        /* Table */
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-        th {
-            background: #f8fafc;
-            color: #6b7280;
-            font-weight: 700;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            padding: 0.75rem 1rem;
-            text-align: right;
-            border-bottom: 2px solid #f1f5f9;
-        }
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #f8fafc;
-            color: #374151;
-            text-align: right;
-        }
-        tr:hover td { background: #fafafa; }
-
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 700;
-        }
-        .badge-green { background: #dcfce7; color: #15803d; }
-        .badge-yellow { background: #fef9c3; color: #92400e; }
-        .badge-village { background: #eff6ff; color: #1d4ed8; }
-
-        /* Mobile cards */
-        .mobile-cards { display: none; padding: 0.75rem; }
-        @media (max-width: 640px) {
-            .table-wrap { display: none; }
-            .mobile-cards { display: block; }
-        }
-        .member-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 0.875rem;
-            margin-bottom: 0.75rem;
-            background: white;
-        }
-        .mc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .mc-name { font-weight: 700; color: #111827; }
-        .mc-row { display: flex; justify-content: space-between; padding: 0.3rem 0; border-top: 1px solid #f3f4f6; font-size: 0.82rem; }
-        .mc-label { color: #9ca3af; }
-        .mc-val { color: #374151; font-weight: 600; }
-
-        /* Loading */
-        .loading { padding: 3rem; text-align: center; color: #9ca3af; }
         .spinner {
-            display: inline-block;
             width: 2.5rem; height: 2.5rem;
             border: 3px solid #e5e7eb;
             border-top-color: var(--green-light);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin .8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Empty */
-        .empty { padding: 3rem; text-align: center; color: #9ca3af; }
+        /* ── ERROR ── */
+        .error-msg {
+            text-align: center;
+            padding: 2rem;
+            color: #dc2626;
+            font-size: .9rem;
+        }
 
-        /* Print */
-        #printTable { display: none; }
-        @media print {
-            body > *:not(#printTable) { display: none !important; }
-            #printTable { display: block !important; padding: 20px; font-family: Cairo, sans-serif; }
-            @page { margin: 1cm; size: A4 portrait; }
+        /* ── REFRESH BTN ── */
+        .refresh-wrap {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .refresh-btn {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: .6rem 1.5rem;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: .85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .refresh-btn:hover { background: var(--green-light); }
+
+        /* ── LAST UPDATE ── */
+        .last-update {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: .75rem;
+            color: #b0b8c1;
         }
     </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-    <a href="/" class="back-btn">← الرئيسية</a>
-    <div>
-        <div class="header-title">قائمة الأعضاء</div>
-        <div class="header-subtitle">رابطة شباب بلدية ملزم تيشط</div>
+    <div class="header-side">
+        <a href="/" class="back-btn" id="backBtn">← الرئيسية</a>
     </div>
-    <div style="width:80px"></div>
-</div>
-
-<!-- Stats -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div><div class="stat-num" id="sHommes" style="color:#16a34a">0</div><div class="stat-label">مجموع الرجال</div></div>
-        <div class="stat-icon">👨</div>
+    <div class="header-center">
+        <div class="header-title" id="pageTitle">إحصاءات الأعضاء</div>
+        <div class="header-sub">رابطة الطليعة الشبابية لبلدية ملزم تيشط</div>
     </div>
-    <div class="stat-card">
-        <div><div class="stat-num" id="sFemmes" style="color:#be185d">0</div><div class="stat-label">مجموع النساء</div></div>
-        <div class="stat-icon">👩</div>
-    </div>
-    <div class="stat-card">
-        <div><div class="stat-num" id="sTotal" style="color:#2563eb">0</div><div class="stat-label">إجمالي الأعضاء</div></div>
-        <div class="stat-icon">👥</div>
-    </div>
-    <div class="stat-card">
-        <div><div class="stat-num" id="sTravaille" style="color:#16a34a">0</div><div class="stat-label">يعملون (رجال)</div></div>
-        <div class="stat-icon">💼</div>
-    </div>
-    <div class="stat-card">
-        <div><div class="stat-num" id="sChomage" style="color:#dc2626">0</div><div class="stat-label">بدون عمل (رجال)</div></div>
-        <div class="stat-icon">🏠</div>
+    <div class="header-side" style="justify-content: flex-end;">
+        <div id="langBtnWrap"></div>
     </div>
 </div>
 
-<!-- Panel -->
+<!-- MAIN -->
 <div class="main">
-    <div class="panel">
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab-btn active-green" id="tabH" onclick="switchTab('hommes')">👨 الرجال</button>
-            <button class="tab-btn" id="tabF" onclick="switchTab('femmes')">👩 النساء</button>
-        </div>
+    <div class="section-title">
+        <h2 id="sectionTitle">📊 الإحصاءات العامة</h2>
+        <p id="sectionSub">إجمالي الأعضاء المسجلين في الرابطة</p>
+    </div>
 
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="البحث بالاسم أو القرية...">
+    <!-- LOADING STATE -->
+    <div id="loadingState" class="loading">
+        <div class="spinner"></div>
+        <span id="loadingText">جاري التحميل...</span>
+    </div>
+
+    <!-- STATS -->
+    <div id="statsWrap" style="display:none;">
+        <div class="stats-grid">
+
+            <div class="stat-card hommes">
+                <div class="stat-icon">👨</div>
+                <div class="stat-num" id="sH">0</div>
+                <div class="stat-label" id="lblH">مجموع الرجال</div>
             </div>
-            <div class="filter-group" id="filterGroup">
-                <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
-                <button class="filter-btn" onclick="setFilter('travaille', this)">💼 يعملون</button>
-                <button class="filter-btn" onclick="setFilter('chomage', this)">🏠 بدون عمل</button>
+
+            <div class="stat-card femmes">
+                <div class="stat-icon">👩</div>
+                <div class="stat-num" id="sF">0</div>
+                <div class="stat-label" id="lblF">مجموع النساء</div>
             </div>
-            <button class="print-btn" onclick="doPrint()">🖨️ طباعة / PDF</button>
-        </div>
 
-        <!-- Loading -->
-        <div id="loadingState" class="loading">
-            <div class="spinner"></div>
-            <p style="margin-top:0.75rem">جاري التحميل...</p>
-        </div>
-
-        <!-- Hommes -->
-        <div id="secHommes" style="display:none">
-            <div class="table-wrap">
-                <table dir="rtl">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الاسم واللقب</th>
-                            <th>الهاتف</th>
-                            <th>القرية</th>
-                            <th>العمر</th>
-                            <th>الوضع</th>
-                            <th>التبرع</th>
-                            <th>التاريخ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hommesBody"></tbody>
-                </table>
+            <div class="stat-card total stat-total">
+                <div class="stat-icon">👥</div>
+                <div class="stat-num" id="sT">0</div>
+                <div class="stat-label" id="lblT">إجمالي الأعضاء</div>
             </div>
-            <div id="hommesMobile" class="mobile-cards"></div>
+
         </div>
 
-        <!-- Femmes -->
-        <div id="secFemmes" style="display:none">
-            <div class="table-wrap">
-                <table dir="rtl">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الاسم واللقب</th>
-                            <th>الهاتف</th>
-                            <th>القرية</th>
-                            <th>العمر</th>
-                            <th>التاريخ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="femmesBody"></tbody>
-                </table>
-            </div>
-            <div id="femmesMobile" class="mobile-cards"></div>
+        <div class="refresh-wrap">
+            <button class="refresh-btn" onclick="loadStats()" id="refreshBtn">🔄 تحديث</button>
         </div>
 
+        <div class="last-update" id="lastUpdate"></div>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="errorState" style="display:none;" class="error-msg">
+        <p id="errorText">❌ خطأ في تحميل البيانات</p>
     </div>
 </div>
 
-<div id="printTable"></div>
-
+<!-- lang.js doit être chargé avant ce script -->
+<script src="/lang.js"></script>
 <script>
-let hommesData = [], femmesData = [];
-let currentTab = 'hommes';
-let currentFilter = 'all';
-let currentSearch = '';
 
-async function init() {
-    try {
-        const [r1, r2] = await Promise.all([fetch('/api/membres'), fetch('/api/femmes')]);
-        const d1 = await r1.json(), d2 = await r2.json();
-        hommesData = d1.membres || [];
-        femmesData = d2.femmes || [];
-        updateStats();
-        switchTab('hommes');
-        document.getElementById('loadingState').style.display = 'none';
-    } catch(e) {
-        document.getElementById('loadingState').innerHTML = '<p style="color:#dc2626">خطأ في التحميل</p>';
+    // ── Injecter le bouton de langue ──────────────────
+    document.getElementById('langBtnWrap').innerHTML = getLangBtnHTML('dark');
+    updateLangBtn();
+
+    // ── Appliquer les traductions ─────────────────────
+    function applyLang() {
+        document.documentElement.lang = currentLang;
+        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+        document.getElementById('backBtn').textContent    = t('list.back');
+        document.getElementById('pageTitle').textContent  = t('stats.page.title');
+        document.getElementById('sectionTitle').textContent = t('stats.section.title');
+        document.getElementById('sectionSub').textContent   = t('stats.section.sub');
+        document.getElementById('lblH').textContent       = t('stat.totalh');
+        document.getElementById('lblF').textContent       = t('stat.totalf');
+        document.getElementById('lblT').textContent       = t('stat.totalmembers');
+        document.getElementById('loadingText').textContent = t('stats.loading');
+        document.getElementById('refreshBtn').textContent  = t('stats.refresh');
+        document.getElementById('errorText').textContent   = t('stats.error');
+
+        updateLangBtn();
+        updateLastUpdate();
     }
-}
 
-function updateStats() {
-    document.getElementById('sHommes').textContent = hommesData.length;
-    document.getElementById('sFemmes').textContent = femmesData.length;
-    document.getElementById('sTotal').textContent = hommesData.length + femmesData.length;
-    document.getElementById('sTravaille').textContent = hommesData.filter(h => h.situation === 'نعم').length;
-    document.getElementById('sChomage').textContent = hommesData.filter(h => h.situation !== 'نعم').length;
-}
+    // ── Timestamp dernière mise à jour ───────────────
+    let lastFetchTime = null;
 
-function switchTab(tab) {
-    currentTab = tab;
-    currentSearch = '';
-    document.getElementById('searchInput').value = '';
-    document.getElementById('tabH').className = 'tab-btn' + (tab === 'hommes' ? ' active-green' : '');
-    document.getElementById('tabF').className = 'tab-btn' + (tab === 'femmes' ? ' active-pink' : '');
-    document.getElementById('secHommes').style.display = tab === 'hommes' ? 'block' : 'none';
-    document.getElementById('secFemmes').style.display = tab === 'femmes' ? 'block' : 'none';
-    document.getElementById('filterGroup').style.display = tab === 'hommes' ? 'flex' : 'none';
-    render();
-}
-
-function setFilter(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
-}
-
-function getFiltered() {
-    let data = currentTab === 'hommes' ? hommesData : femmesData;
-    if (currentSearch) {
-        const t = currentSearch.toLowerCase();
-        data = data.filter(m => m.nom?.toLowerCase().includes(t) || m.village?.toLowerCase().includes(t));
+    function updateLastUpdate() {
+        const el = document.getElementById('lastUpdate');
+        if (!lastFetchTime) { el.textContent = ''; return; }
+        const label = currentLang === 'ar' ? 'آخر تحديث:' : 'Dernière mise à jour :';
+        const time  = lastFetchTime.toLocaleTimeString(
+            currentLang === 'ar' ? 'ar-MA' : 'fr-FR',
+            { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+        );
+        el.textContent = `${label} ${time}`;
     }
-    if (currentTab === 'hommes' && currentFilter !== 'all') {
-        if (currentFilter === 'travaille') data = data.filter(h => h.situation === 'نعم');
-        else data = data.filter(h => h.situation !== 'نعم');
+
+    // ── Chargement des données ────────────────────────
+    async function loadStats() {
+        document.getElementById('loadingState').style.display  = 'flex';
+        document.getElementById('statsWrap').style.display     = 'none';
+        document.getElementById('errorState').style.display    = 'none';
+
+        try {
+            const [r1, r2] = await Promise.all([
+                fetch('/api/membreMelzem'),
+                fetch('/api/femmesMelzem')
+            ]);
+            const d1 = await r1.json();
+            const d2 = await r2.json();
+
+            const hommes = (d1.membreMelzem  || []).length;
+            const femmes = (d2.femmesMelzem  || []).length;
+            const total  = hommes + femmes;
+
+            // Animer les chiffres
+            animateCount('sH', hommes);
+            animateCount('sF', femmes);
+            animateCount('sT', total);
+
+            lastFetchTime = new Date();
+            updateLastUpdate();
+
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('statsWrap').style.display    = 'block';
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display   = 'block';
+        }
     }
-    return data;
-}
 
-function fmtDate(d) {
-    if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', {year:'numeric', month:'short', day:'numeric'});
-}
+    // ── Animation compteur ────────────────────────────
+    function animateCount(id, target) {
+        const el = document.getElementById(id);
+        const duration = 900;
+        const start    = performance.now();
+        const from     = parseInt(el.textContent) || 0;
 
-function render() {
-    const data = getFiltered();
-    if (currentTab === 'hommes') renderHommes(data);
-    else renderFemmes(data);
-}
-
-function renderHommes(data) {
-    const tbody = document.getElementById('hommesBody');
-    const mobile = document.getElementById('hommesMobile');
-    if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#9ca3af">لا توجد نتائج</td></tr>';
-        mobile.innerHTML = '<div class="empty">لا توجد نتائج</div>';
-        return;
+        function step(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const ease     = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            el.textContent = Math.round(from + (target - from) * ease);
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
     }
-    tbody.innerHTML = data.map((m,i) => `
-        <tr>
-            <td style="color:#9ca3af">${i+1}</td>
-            <td><strong>${m.nom}</strong></td>
-            <td>${m.telephone||'—'}</td>
-            <td><span class="badge badge-village">${m.village||'—'}</span></td>
-            <td>${m.age||'—'}</td>
-            <td><span class="badge ${m.situation==='نعم'?'badge-green':'badge-yellow'}">${m.situation==='نعم'?'💼 يعمل':'🏠 بدون عمل'}</span></td>
-            <td style="color:#9ca3af;font-size:0.8rem">${fmtDate(m.date_inscription)}</td>
-        </tr>
-    `).join('');
-    mobile.innerHTML = data.map((m,i) => `
-        <div class="member-card">
-            <div class="mc-header">
-                <span class="mc-name">${i+1}. ${m.nom}</span>
-                <span class="badge ${m.situation==='نعم'?'badge-green':'badge-yellow'}">${m.situation==='نعم'?'💼 يعمل':'🏠 بدون عمل'}</span>
-            </div>
-            <div class="mc-row"><span class="mc-label">الهاتف</span><span class="mc-val">${m.telephone||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">القرية</span><span class="mc-val">${m.village||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">العمر</span><span class="mc-val">${m.age||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">التاريخ</span><span class="mc-val">${fmtDate(m.date_inscription)}</span></div>
-        </div>
-    `).join('');
-}
 
-function renderFemmes(data) {
-    const tbody = document.getElementById('femmesBody');
-    const mobile = document.getElementById('femmesMobile');
-    if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:#9ca3af">لا توجد نتائج</td></tr>';
-        mobile.innerHTML = '<div class="empty">لا توجد نتائج</div>';
-        return;
-    }
-    tbody.innerHTML = data.map((f,i) => `
-        <tr>
-            <td style="color:#9ca3af">${i+1}</td>
-            <td><strong>${f.nom}</strong></td>
-            <td>${f.telephone||'—'}</td>
-            <td><span class="badge badge-village">${f.village||'—'}</span></td>
-            <td>${f.age||'—'}</td>
-            <td style="color:#9ca3af;font-size:0.8rem">${fmtDate(f.date_inscription)}</td>
-        </tr>
-    `).join('');
-    mobile.innerHTML = data.map((f,i) => `
-        <div class="member-card">
-            <div class="mc-header">
-                <span class="mc-name">${i+1}. ${f.nom}</span>
-                <span style="font-size:1.2rem">👩</span>
-            </div>
-            <div class="mc-row"><span class="mc-label">الهاتف</span><span class="mc-val">${f.telephone||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">القرية</span><span class="mc-val">${f.village||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">العمر</span><span class="mc-val">${f.age||'—'}</span></div>
-            <div class="mc-row"><span class="mc-label">التاريخ</span><span class="mc-val">${fmtDate(f.date_inscription)}</span></div>
-        </div>
-    `).join('');
-}
-
-document.getElementById('searchInput').addEventListener('input', e => {
-    currentSearch = e.target.value;
-    render();
-});
-
-function doPrint() {
-    const data = getFiltered();
-    const isH = currentTab === 'hommes';
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-    let html = `
-    <div style="padding:20px; font-family:Cairo,sans-serif;">
-        <div style="text-align:center; margin-bottom:24px; padding-bottom:16px; border-bottom:3px double #1a5c38;">
-            <h1 style="font-size:22pt; font-weight:900; color:#1a5c38; margin-bottom:4px;">رابطة شباب بلدية ملزم تيشط</h1>
-            <p style="color:#888; font-size:10pt;">Association de la Jeunesse de Melzam Tichit — Mauritanie</p>
-            <p style="color:#aaa; font-size:9pt; margin-top:4px;">طُبع بتاريخ: ${dateStr}</p>
-        </div>
-        <h2 style="font-size:14pt; font-weight:700; text-align:center; margin-bottom:16px; color:#333;">
-            ${isH ? 'قائمة الرجال المسجلين' : 'قائمة النساء المسجلات'} (${data.length})
-        </h2>
-        <table style="width:100%; border-collapse:collapse; font-size:9pt;" dir="rtl">
-            <thead>
-                <tr style="background:#e8f5ee;">
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">#</th>
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">الاسم واللقب</th>
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">الهاتف</th>
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">القرية</th>
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">العمر</th>
-                    ${isH ? '<th style="border:1px solid #ccc; padding:6px; font-weight:700;">الوضع</th><th style="border:1px solid #ccc; padding:6px; font-weight:700;">التبرع</th>' : ''}
-                    <th style="border:1px solid #ccc; padding:6px; font-weight:700;">التاريخ</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    data.forEach((m,i) => {
-        html += `<tr>
-            <td style="border:1px solid #ddd; padding:5px; text-align:center;">${i+1}</td>
-            <td style="border:1px solid #ddd; padding:5px; font-weight:600;">${m.nom}</td>
-            <td style="border:1px solid #ddd; padding:5px;">${m.telephone||'—'}</td>
-            <td style="border:1px solid #ddd; padding:5px;">${m.village||'—'}</td>
-            <td style="border:1px solid #ddd; padding:5px;">${m.age||'—'}</td>
-            ${isH ? `<td style="border:1px solid #ddd; padding:5px;">${m.situation==='نعم'?'يعمل':'بدون عمل'}</td>` : ''}
-            <td style="border:1px solid #ddd; padding:5px; font-size:8pt;">${fmtDate(m.date_inscription)}</td>
-        </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    document.getElementById('printTable').innerHTML = html;
-    setTimeout(() => window.print(), 100);
-}
-
-init();
+    // ── Init ──────────────────────────────────────────
+    applyLang();
+    loadStats();
 </script>
 </body>
 </html>
